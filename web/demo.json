@@ -1,0 +1,374 @@
+{
+  "runs": [
+    {
+      "imo": "9900001",
+      "name": "DEMO CLEAN TIDE",
+      "request": "Assess IMO 9900001 for hull & machinery cover.",
+      "events": [
+        {
+          "event": "tool_call",
+          "tool": "get_vessel_profile",
+          "input": {
+            "imo": "9900001"
+          }
+        },
+        {
+          "event": "tool_result",
+          "tool": "get_vessel_profile",
+          "output": {
+            "found": true,
+            "imo": "9900001",
+            "name": "DEMO CLEAN TIDE",
+            "type": "Bulk Carrier",
+            "year_built": 2019,
+            "flag": "Marshall Islands",
+            "flag_list": "white",
+            "class_society": "DNV",
+            "iacs_member": true,
+            "gross_tonnage": 43000,
+            "owner": "Demo Clean Shipping Ltd",
+            "insured_value_usd": 32000000,
+            "source": "sample-data"
+          }
+        },
+        {
+          "event": "tool_call",
+          "tool": "get_psc_history",
+          "input": {
+            "imo": "9900001"
+          }
+        },
+        {
+          "event": "tool_result",
+          "tool": "get_psc_history",
+          "output": {
+            "found": true,
+            "imo": "9900001",
+            "inspections": 9,
+            "deficiencies": 4,
+            "detentions": 0,
+            "last_inspection": "2026-05-14",
+            "source": "sample-data (stand-in for USCG PSIX / Paris MOU)"
+          }
+        },
+        {
+          "event": "tool_call",
+          "tool": "check_sanctions",
+          "input": {
+            "imo": "9900001",
+            "owner_name": "Demo Clean Shipping Ltd"
+          }
+        },
+        {
+          "event": "tool_result",
+          "tool": "check_sanctions",
+          "output": {
+            "imo": "9900001",
+            "match": false,
+            "hits": [],
+            "source": "sample-data (stand-in for OFAC SDN list)"
+          }
+        },
+        {
+          "event": "tool_call",
+          "tool": "score_vessel",
+          "input": {
+            "vessel_type": "Bulk Carrier",
+            "year_built": 2019,
+            "flag_list": "white",
+            "iacs_member": true,
+            "inspections": 9,
+            "deficiencies": 4,
+            "detentions": 0
+          }
+        },
+        {
+          "event": "tool_result",
+          "tool": "score_vessel",
+          "output": {
+            "score": 13.5,
+            "contributions": {
+              "age": 5.8,
+              "psc": 5.7,
+              "flag": 2.0,
+              "class": 0.0
+            },
+            "credibility_z": 0.64,
+            "cohort_psc_risk": 0.35,
+            "model_version": "placeholder-0.1"
+          }
+        },
+        {
+          "event": "tool_call",
+          "tool": "price_premium",
+          "input": {
+            "score": 13.5,
+            "insured_value_usd": 32000000
+          }
+        },
+        {
+          "event": "tool_result",
+          "tool": "price_premium",
+          "output": {
+            "relativity": 0.56,
+            "expected_loss_usd": 215808,
+            "premium_usd": 280550,
+            "rate_on_value_pct": 0.877,
+            "model_version": "placeholder-0.1"
+          }
+        }
+      ],
+      "memo": "VESSEL: DEMO CLEAN TIDE (IMO 9900001), Bulk Carrier, built 2019 [get_vessel_profile]\nRECOMMENDATION: ACCEPT\nRISK SCORE: 13.5/100 [score_vessel]\nPREMIUM: $280,550 (0.877% of value) [price_premium]\nTOP RISK DRIVERS:\n- age: 5.8 pts [score_vessel]\n- psc: 5.7 pts [score_vessel]\n- flag: 2.0 pts [score_vessel]\nDATA GAPS:\n- Mock mode: memo is templated, not LLM-written",
+      "mode": "mock"
+    },
+    {
+      "imo": "9900002",
+      "name": "DEMO RUSTY STAR",
+      "request": "Assess IMO 9900002 for hull & machinery cover.",
+      "events": [
+        {
+          "event": "tool_call",
+          "tool": "get_vessel_profile",
+          "input": {
+            "imo": "9900002"
+          }
+        },
+        {
+          "event": "tool_result",
+          "tool": "get_vessel_profile",
+          "output": {
+            "found": true,
+            "imo": "9900002",
+            "name": "DEMO RUSTY STAR",
+            "type": "Bulk Carrier",
+            "year_built": 2003,
+            "flag": "Demo Grey Flag",
+            "flag_list": "grey",
+            "class_society": "Demo Non-IACS Register",
+            "iacs_member": false,
+            "gross_tonnage": 38000,
+            "owner": "Demo Opaque Holdings SA",
+            "insured_value_usd": 9000000,
+            "source": "sample-data"
+          }
+        },
+        {
+          "event": "tool_call",
+          "tool": "get_psc_history",
+          "input": {
+            "imo": "9900002"
+          }
+        },
+        {
+          "event": "tool_result",
+          "tool": "get_psc_history",
+          "output": {
+            "found": true,
+            "imo": "9900002",
+            "inspections": 11,
+            "deficiencies": 47,
+            "detentions": 3,
+            "last_inspection": "2026-03-02",
+            "source": "sample-data (stand-in for USCG PSIX / Paris MOU)"
+          }
+        },
+        {
+          "event": "tool_call",
+          "tool": "check_sanctions",
+          "input": {
+            "imo": "9900002",
+            "owner_name": "Demo Opaque Holdings SA"
+          }
+        },
+        {
+          "event": "tool_result",
+          "tool": "check_sanctions",
+          "output": {
+            "imo": "9900002",
+            "match": false,
+            "hits": [],
+            "source": "sample-data (stand-in for OFAC SDN list)"
+          }
+        },
+        {
+          "event": "tool_call",
+          "tool": "score_vessel",
+          "input": {
+            "vessel_type": "Bulk Carrier",
+            "year_built": 2003,
+            "flag_list": "grey",
+            "iacs_member": false,
+            "inspections": 11,
+            "deficiencies": 47,
+            "detentions": 3
+          }
+        },
+        {
+          "event": "tool_result",
+          "tool": "score_vessel",
+          "output": {
+            "score": 75.1,
+            "contributions": {
+              "age": 19.2,
+              "psc": 28.9,
+              "flag": 12.0,
+              "class": 15.0
+            },
+            "credibility_z": 0.69,
+            "cohort_psc_risk": 0.35,
+            "model_version": "placeholder-0.1"
+          }
+        },
+        {
+          "event": "tool_call",
+          "tool": "price_premium",
+          "input": {
+            "score": 75.1,
+            "insured_value_usd": 9000000
+          }
+        },
+        {
+          "event": "tool_result",
+          "tool": "price_premium",
+          "output": {
+            "relativity": 1.3,
+            "expected_loss_usd": 140530,
+            "premium_usd": 182688,
+            "rate_on_value_pct": 2.03,
+            "model_version": "placeholder-0.1"
+          }
+        }
+      ],
+      "memo": "VESSEL: DEMO RUSTY STAR (IMO 9900002), Bulk Carrier, built 2003 [get_vessel_profile]\nRECOMMENDATION: REFER\nRISK SCORE: 75.1/100 [score_vessel]\nPREMIUM: $182,688 (2.03% of value) [price_premium]\nTOP RISK DRIVERS:\n- psc: 28.9 pts [score_vessel]\n- age: 19.2 pts [score_vessel]\n- class: 15.0 pts [score_vessel]\nDATA GAPS:\n- Mock mode: memo is templated, not LLM-written",
+      "mode": "mock"
+    },
+    {
+      "imo": "9900003",
+      "name": "DEMO THIN DATA",
+      "request": "Assess IMO 9900003 for hull & machinery cover.",
+      "events": [
+        {
+          "event": "tool_call",
+          "tool": "get_vessel_profile",
+          "input": {
+            "imo": "9900003"
+          }
+        },
+        {
+          "event": "tool_result",
+          "tool": "get_vessel_profile",
+          "output": {
+            "found": true,
+            "imo": "9900003",
+            "name": "DEMO THIN DATA",
+            "type": "Bulk Carrier",
+            "year_built": 2012,
+            "flag": "Panama",
+            "flag_list": "white",
+            "class_society": "ABS",
+            "iacs_member": true,
+            "gross_tonnage": 40000,
+            "owner": "Demo Sanctioned Trading Co",
+            "insured_value_usd": 18000000,
+            "source": "sample-data"
+          }
+        },
+        {
+          "event": "tool_call",
+          "tool": "get_psc_history",
+          "input": {
+            "imo": "9900003"
+          }
+        },
+        {
+          "event": "tool_result",
+          "tool": "get_psc_history",
+          "output": {
+            "found": true,
+            "imo": "9900003",
+            "inspections": 1,
+            "deficiencies": 2,
+            "detentions": 0,
+            "last_inspection": "2025-11-20",
+            "source": "sample-data (stand-in for USCG PSIX / Paris MOU)"
+          }
+        },
+        {
+          "event": "tool_call",
+          "tool": "check_sanctions",
+          "input": {
+            "imo": "9900003",
+            "owner_name": "Demo Sanctioned Trading Co"
+          }
+        },
+        {
+          "event": "tool_result",
+          "tool": "check_sanctions",
+          "output": {
+            "imo": "9900003",
+            "match": true,
+            "hits": [
+              {
+                "name": "Demo Sanctioned Trading Co",
+                "list": "DEMO-SDN",
+                "imo": null,
+                "matched_on": "owner_name"
+              }
+            ],
+            "source": "sample-data (stand-in for OFAC SDN list)"
+          }
+        },
+        {
+          "event": "tool_call",
+          "tool": "score_vessel",
+          "input": {
+            "vessel_type": "Bulk Carrier",
+            "year_built": 2012,
+            "flag_list": "white",
+            "iacs_member": true,
+            "inspections": 1,
+            "deficiencies": 2,
+            "detentions": 0
+          }
+        },
+        {
+          "event": "tool_result",
+          "tool": "score_vessel",
+          "output": {
+            "score": 26.2,
+            "contributions": {
+              "age": 11.7,
+              "psc": 12.5,
+              "flag": 2.0,
+              "class": 0.0
+            },
+            "credibility_z": 0.17,
+            "cohort_psc_risk": 0.35,
+            "model_version": "placeholder-0.1"
+          }
+        },
+        {
+          "event": "tool_call",
+          "tool": "price_premium",
+          "input": {
+            "score": 26.2,
+            "insured_value_usd": 18000000
+          }
+        },
+        {
+          "event": "tool_result",
+          "tool": "price_premium",
+          "output": {
+            "relativity": 0.71,
+            "expected_loss_usd": 154310,
+            "premium_usd": 200604,
+            "rate_on_value_pct": 1.114,
+            "model_version": "placeholder-0.1"
+          }
+        }
+      ],
+      "memo": "VESSEL: DEMO THIN DATA (IMO 9900003), Bulk Carrier, built 2012 [get_vessel_profile]\nRECOMMENDATION: DECLINE (sanctions match)\nRISK SCORE: 26.2/100 [score_vessel]\nPREMIUM: $200,604 (1.114% of value) [price_premium]\nTOP RISK DRIVERS:\n- psc: 12.5 pts [score_vessel]\n- age: 11.7 pts [score_vessel]\n- flag: 2.0 pts [score_vessel]\n- Sanctions match: Demo Sanctioned Trading Co on DEMO-SDN [check_sanctions]\nDATA GAPS:\n- Thin PSC record (1 inspections); credibility weight 0.17 so score leans on peer cohort [score_vessel]\n- Mock mode: memo is templated, not LLM-written",
+      "mode": "mock"
+    }
+  ]
+}

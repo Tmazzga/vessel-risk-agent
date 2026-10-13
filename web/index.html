@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vessel Risk Agent</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --panel: #ffffff; --ink: #14202e; --muted: #5b6878;
+    --line: #dde2e8; --accent: #1d4e89; --call: #e8eef6; --result: #eef5ee;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0e141b; --panel: #161e27; --ink: #e6ebf1; --muted: #93a1b1;
+            --line: #263240; --accent: #7fb0ea; --call: #1b2633; --result: #18261c; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 15px/1.5 system-ui, -apple-system, Segoe UI, sans-serif; }
+  header { padding: 20px 16px; border-bottom: 1px solid var(--line); }
+  h1 { margin: 0; font-size: 20px; }
+  header p { margin: 4px 0 0; color: var(--muted); }
+  main { max-width: 1100px; margin: 0 auto; padding: 16px; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .tabs button { border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+                 padding: 8px 12px; border-radius: 6px; cursor: pointer; font: inherit; }
+  .tabs button.active { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+  section { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px; min-width: 0; }
+  h2 { margin: 0 0 10px; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  .ev { border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; font: 12px/1.4 ui-monospace, Menlo, monospace;
+        white-space: pre-wrap; word-break: break-word; opacity: 0; transition: opacity .3s; }
+  .ev.show { opacity: 1; }
+  .ev.call { background: var(--call); } .ev.result { background: var(--result); }
+  .ev b { font-family: system-ui, sans-serif; }
+  pre.memo { margin: 0; white-space: pre-wrap; font: 13px/1.6 ui-monospace, Menlo, monospace; }
+  .note { color: var(--muted); font-size: 13px; margin-top: 12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Vessel Risk Agent</h1>
+  <p>LLM underwriting agent: tool calls on the left, memo on the right. Every figure comes from a tool.</p>
+</header>
+<main>
+  <div class="tabs" id="tabs"></div>
+  <div class="grid">
+    <section><h2>Agent trace</h2><div id="trace"></div></section>
+    <section><h2>Underwriting memo</h2><pre class="memo" id="memo"></pre></section>
+  </div>
+  <p class="note" id="mode"></p>
+</main>
+<script>
+let runs = [], timer = null;
+
+function show(i) {
+  clearTimeout(timer);
+  document.querySelectorAll('.tabs button').forEach((b, j) => b.classList.toggle('active', i === j));
+  const run = runs[i], trace = document.getElementById('trace'), memo = document.getElementById('memo');
+  trace.innerHTML = ''; memo.textContent = '';
+  document.getElementById('mode').textContent =
+    run.mode === 'mock' ? 'Cached mock run (scripted, no LLM). Regenerate with python -m agent.export_demo --live.' :
+                          'Cached live LLM run.';
+  run.events.forEach(ev => {
+    const d = document.createElement('div');
+    d.className = 'ev ' + (ev.event === 'tool_call' ? 'call' : 'result');
+    const body = ev.event === 'tool_call' ? ev.input : ev.output;
+    d.innerHTML = `<b>${ev.event === 'tool_call' ? '→ call' : '← result'} ${ev.tool}</b>\n`;
+    d.appendChild(document.createTextNode(JSON.stringify(body, null, 1)));
+    trace.appendChild(d);
+  });
+  const els = [...trace.children];
+  let k = 0;
+  (function step() {
+    if (k < els.length) { els[k++].classList.add('show'); timer = setTimeout(step, 450); }
+    else { memo.textContent = run.memo; }
+  })();
+}
+
+fetch('demo.json').then(r => r.json()).then(d => {
+  runs = d.runs;
+  const tabs = document.getElementById('tabs');
+  runs.forEach((r, i) => {
+    const b = document.createElement('button');
+    b.textContent = `${r.name} · ${r.imo}`;
+    b.onclick = () => show(i);
+    tabs.appendChild(b);
+  });
+  if (runs.length) show(0);
+}).catch(() => {
+  document.getElementById('memo').textContent = 'No demo.json found. Run: python -m agent.export_demo';
+});
+</script>
+</body>
+</html>

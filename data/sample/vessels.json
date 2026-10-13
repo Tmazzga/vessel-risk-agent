@@ -1,0 +1,62 @@
+{
+  "_note": "FICTIONAL demo vessels. Names and IMO numbers are invented placeholders, not real ships. Replace with real data pulled by the pipeline.",
+  "vessels": {
+    "9900001": {
+      "name": "DEMO CLEAN TIDE",
+      "type": "Bulk Carrier",
+      "year_built": 2019,
+      "flag": "Marshall Islands",
+      "flag_list": "white",
+      "class_society": "DNV",
+      "iacs_member": true,
+      "gross_tonnage": 43000,
+      "owner": "Demo Clean Shipping Ltd",
+      "insured_value_usd": 32000000,
+      "psc": {
+        "inspections": 9,
+        "deficiencies": 4,
+        "detentions": 0,
+        "last_inspection": "2026-05-14"
+      }
+    },
+    "9900002": {
+      "name": "DEMO RUSTY STAR",
+      "type": "Bulk Carrier",
+      "year_built": 2003,
+      "flag": "Demo Grey Flag",
+      "flag_list": "grey",
+      "class_society": "Demo Non-IACS Register",
+      "iacs_member": false,
+      "gross_tonnage": 38000,
+      "owner": "Demo Opaque Holdings SA",
+      "insured_value_usd": 9000000,
+      "psc": {
+        "inspections": 11,
+        "deficiencies": 47,
+        "detentions": 3,
+        "last_inspection": "2026-03-02"
+      }
+    },
+    "9900003": {
+      "name": "DEMO THIN DATA",
+      "type": "Bulk Carrier",
+      "year_built": 2012,
+      "flag": "Panama",
+      "flag_list": "white",
+      "class_society": "ABS",
+      "iacs_member": true,
+      "gross_tonnage": 40000,
+      "owner": "Demo Sanctioned Trading Co",
+      "insured_value_usd": 18000000,
+      "psc": {
+        "inspections": 1,
+        "deficiencies": 2,
+        "detentions": 0,
+        "last_inspection": "2025-11-20"
+      }
+    }
+  },
+  "sanctions_list": [
+    {"name": "Demo Sanctioned Trading Co", "list": "DEMO-SDN", "imo": null}
+  ]
+}
