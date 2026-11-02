@@ -31,6 +31,9 @@ python -m agent.agent --mock "Assess IMO 9900002 for H&M cover"
 export ANTHROPIC_API_KEY=...
 python -m agent.agent "Assess IMO 9900002 for H&M cover"
 
+# Ask follow-ups ("what if it had one fewer detention?") after the memo
+python -m agent.agent --chat --mock "Assess IMO 9900002"
+
 # Cache demo runs for the web page, then open web/index.html via a local server
 python -m agent.export_demo            # add --live for real LLM runs
 python -m http.server -d web 8000
@@ -38,6 +41,9 @@ python -m http.server -d web 8000
 # Real data (see docs/data-collection.md)
 python -m pipeline.fetch_ofac        # sanctions list -> data/processed/sanctions.csv
 python -m pipeline.validate_vessels  # check data/processed/vessels.csv
+
+# Check memos: every number must trace to a tool output
+python -m eval.check_memo                 # checks web/demo.json
 
 # Tests
 pytest
@@ -54,6 +60,7 @@ Demo vessels (fictional): `9900001` clean, `9900002` high-risk, `9900003` thin d
 | `agent/tools/model_tools.py` | Risk score, credibility, pricing | Math teammate |
 | `docs/tool-spec.md` | Tool contracts + open modeling questions | All |
 | `eval/memo_rubric.md` | Memo grading rubric + governance questions | Eval teammate |
+| `eval/check_memo.py` | Automated check for untraced numbers and missing citations | Eval teammate |
 | `pipeline/` | OFAC download, vessel CSV validator | Ty |
 | `web/` | Static demo page (GitHub Pages) | Ty |
 | `tests/` | Tool contract tests | All |

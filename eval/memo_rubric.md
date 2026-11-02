@@ -11,6 +11,8 @@ Owner: evaluation & governance teammate. Grade each agent memo (target: 20-30 me
 
 **Hallucinations:** count any number or claim not found in the tool trace. Target: 0.
 
+`python -m eval.check_memo <runs.json> --csv eval/auto_check.csv` does the number check automatically and flags lines with no citation. Run it first, then grade the four criteria by hand. Limitation: small numbers like 1 or 2 almost always appear somewhere in the trace, so the script can miss a wrong small number. Spot-check those.
+
 ## Governance questions to answer in the write-up
 
 - Does the score penalize certain flags or owner nationalities unfairly? Compare scores across flags with similar PSC records.
