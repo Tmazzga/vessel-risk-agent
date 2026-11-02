@@ -1,47 +1,125 @@
 """Data tools (owner: Ty). Deterministic lookups the agent calls.
 
-STUB: reads data/sample/vessels.json. Replace internals with the real
-pipeline (USCG PSIX, Paris MOU THETIS, Equasis manual pulls, OFAC SDN)
-without changing the return shapes in docs/tool-spec.md.
+Data comes from data/processed/ when those files exist, otherwise from the
+fictional demo set in data/sample/vessels.json:
+
+    data/processed/vessels.csv    hand-built from Equasis + USCG PSIX / Paris MOU
+                                  (check it with: python -m pipeline.validate_vessels)
+    data/processed/sanctions.csv  built by: python -m pipeline.fetch_ofac
+
+Return shapes are fixed by docs/tool-spec.md. Don't change them without
+telling the team.
 """
+import csv
 import json
 from functools import lru_cache
 from pathlib import Path
 
-DATA_FILE = Path(__file__).resolve().parents[2] / "data" / "sample" / "vessels.json"
+ROOT = Path(__file__).resolve().parents[2]
+SAMPLE_FILE = ROOT / "data" / "sample" / "vessels.json"
+VESSELS_CSV = ROOT / "data" / "processed" / "vessels.csv"
+SANCTIONS_CSV = ROOT / "data" / "processed" / "sanctions.csv"
+
+PROFILE_KEYS = ["name", "type", "year_built", "flag", "flag_list", "class_society",
+                "iacs_member", "gross_tonnage", "owner", "insured_value_usd"]
+
+
+def _num(v, kind=int):
+    v = (v or "").strip().replace(",", "")
+    return kind(v) if v else None
+
+
+def _row_to_vessel(r: dict) -> dict:
+    return {
+        "name": r["name"],
+        "type": r["type"],
+        "year_built": _num(r["year_built"]),
+        "flag": r["flag"],
+        "flag_list": r["flag_list"].strip().lower(),
+        "class_society": r["class_society"],
+        "iacs_member": r["iacs_member"].strip().lower() in ("true", "yes", "1"),
+        "gross_tonnage": _num(r["gross_tonnage"]),
+        "owner": r["owner"],
+        "insured_value_usd": _num(r["insured_value_usd"], float),
+        "psc": {
+            "inspections": _num(r["psc_inspections"]) or 0,
+            "deficiencies": _num(r["psc_deficiencies"]) or 0,
+            "detentions": _num(r["psc_detentions"]) or 0,
+            "last_inspection": r["psc_last_inspection"] or None,
+        },
+        "_source": r.get("source") or "processed data",
+        "_date_pulled": r.get("date_pulled") or None,
+    }
 
 
 @lru_cache(maxsize=1)
-def _db() -> dict:
-    return json.loads(DATA_FILE.read_text())
+def _vessels() -> tuple[dict, str]:
+    if VESSELS_CSV.exists():
+        with VESSELS_CSV.open(newline="") as f:
+            rows = {r["imo"].strip(): _row_to_vessel(r) for r in csv.DictReader(f) if r.get("imo")}
+        if rows:
+            return rows, "processed"
+    return json.loads(SAMPLE_FILE.read_text())["vessels"], "sample"
+
+
+@lru_cache(maxsize=1)
+def _sanctions() -> tuple[list, str]:
+    if SANCTIONS_CSV.exists():
+        with SANCTIONS_CSV.open(newline="") as f:
+            return list(csv.DictReader(f)), "OFAC SDN list"
+    return json.loads(SAMPLE_FILE.read_text())["sanctions_list"], "sample-data"
+
+
+def data_mode() -> str:
+    """'processed' if real vessel data is loaded, else 'sample'."""
+    return _vessels()[1]
 
 
 def _vessel(imo: str) -> dict | None:
-    return _db()["vessels"].get(str(imo).strip())
+    return _vessels()[0].get(str(imo).strip())
+
+
+def _source(v: dict, default: str) -> str:
+    if data_mode() == "sample":
+        return default
+    s = v.get("_source", "processed data")
+    return f"{s} (pulled {v['_date_pulled']})" if v.get("_date_pulled") else s
 
 
 def get_vessel_profile(imo: str) -> dict:
     v = _vessel(imo)
     if v is None:
-        return {"found": False, "imo": imo, "source": "sample-data"}
-    keys = ["name", "type", "year_built", "flag", "flag_list", "class_society",
-            "iacs_member", "gross_tonnage", "owner", "insured_value_usd"]
-    return {"found": True, "imo": imo, **{k: v[k] for k in keys}, "source": "sample-data"}
+        return {"found": False, "imo": imo, "source": data_mode()}
+    missing = [k for k in PROFILE_KEYS if v.get(k) in (None, "")]
+    out = {"found": True, "imo": imo, **{k: v.get(k) for k in PROFILE_KEYS},
+           "source": _source(v, "sample-data")}
+    if missing:
+        out["missing_fields"] = missing  # agent should report these as data gaps
+    return out
 
 
 def get_psc_history(imo: str) -> dict:
     v = _vessel(imo)
     if v is None:
-        return {"found": False, "imo": imo, "source": "sample-data"}
-    return {"found": True, "imo": imo, **v["psc"], "source": "sample-data (stand-in for USCG PSIX / Paris MOU)"}
+        return {"found": False, "imo": imo, "source": data_mode()}
+    return {"found": True, "imo": imo, **v["psc"],
+            "source": _source(v, "sample-data (stand-in for USCG PSIX / Paris MOU)")}
+
+
+def _norm(name: str) -> str:
+    return " ".join("".join(c for c in name.lower() if c.isalnum() or c.isspace()).split())
 
 
 def check_sanctions(imo: str, owner_name: str = "") -> dict:
+    entries, source = _sanctions()
+    owner = _norm(owner_name) if owner_name else ""
     hits = []
-    for entry in _db()["sanctions_list"]:
-        if entry.get("imo") and str(entry["imo"]) == str(imo):
-            hits.append({**entry, "matched_on": "imo"})
-        elif owner_name and entry["name"].lower() == owner_name.strip().lower():
-            hits.append({**entry, "matched_on": "owner_name"})
-    return {"imo": imo, "match": bool(hits), "hits": hits,
-            "source": "sample-data (stand-in for OFAC SDN list)"}
+    for e in entries:
+        e_imo = str(e.get("imo") or "").strip()
+        if e_imo and e_imo == str(imo).strip():
+            hits.append({"name": e["name"], "list": e.get("list", "OFAC-SDN"),
+                         "program": e.get("program", ""), "matched_on": "imo"})
+        elif owner and _norm(e["name"]) == owner:
+            hits.append({"name": e["name"], "list": e.get("list", "OFAC-SDN"),
+                         "program": e.get("program", ""), "matched_on": "owner_name"})
+    return {"imo": imo, "match": bool(hits), "hits": hits, "source": source}

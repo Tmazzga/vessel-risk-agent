@@ -11,7 +11,7 @@ import json
 from pathlib import Path
 
 from agent.agent import run_agent, run_mock
-from agent.tools.data_tools import _db
+from agent.tools.data_tools import _vessels
 
 OUT = Path(__file__).resolve().parents[1] / "web" / "demo.json"
 
@@ -22,7 +22,7 @@ def main():
     a = p.parse_args()
 
     runs = []
-    for imo, v in _db()["vessels"].items():
+    for imo, v in _vessels()[0].items():
         events = []
         request = f"Assess IMO {imo} for hull & machinery cover."
         memo = (run_agent if a.live else run_mock)(request, events.append)
