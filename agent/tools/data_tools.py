@@ -77,7 +77,7 @@ def _sanctions() -> tuple[list, str]:
 def _owners() -> tuple[dict, str]:
     if OWNERS_CSV.exists():
         with OWNERS_CSV.open(newline="") as f:
-            rows = {_norm(r["owner"]): {
+            rows = {_company_key(r["owner"]): {
                 "owner": r["owner"],
                 "fleet_size": _num(r.get("fleet_size")),
                 "inspections": _num(r.get("inspections")) or 0,
@@ -89,7 +89,7 @@ def _owners() -> tuple[dict, str]:
             } for r in csv.DictReader(f) if r.get("owner")}
         return rows, "processed"
     raw = json.loads(SAMPLE_FILE.read_text()).get("owners", {})
-    return {_norm(k): {"owner": k, **v} for k, v in raw.items()}, "sample"
+    return {_company_key(k): {"owner": k, **v} for k, v in raw.items()}, "sample"
 
 
 def data_mode() -> str:
@@ -129,28 +129,44 @@ def get_psc_history(imo: str) -> dict:
 
 
 def _norm(name: str) -> str:
-    return " ".join("".join(c for c in name.lower() if c.isalnum() or c.isspace()).split())
+    return " ".join("".join(c if c.isalnum() else " " for c in name.lower()).split())
+
+
+# Legal-form words dropped for loose company matching ("Ocean Star Shipping Co. Ltd" ~ "Ocean Star Shipping").
+LEGAL_FORMS = {"ltd", "limited", "inc", "incorporated", "co", "company", "corp", "corporation", "llc",
+               "plc", "sa", "s", "a", "gmbh", "ag", "as", "bv", "nv", "spa", "srl", "sarl", "pte",
+               "pvt", "private", "the"}
+
+
+def _company_key(name: str) -> str:
+    words = [w for w in _norm(name).split() if w not in LEGAL_FORMS]
+    return " ".join(words) or _norm(name)
 
 
 def check_sanctions(imo: str, owner_name: str = "") -> dict:
+    """IMO match or exact owner-name match = hit. A name that only matches once
+    legal-form words (Ltd, Co, SA...) are ignored = possible hit for a person to confirm."""
     entries, source = _sanctions()
     owner = _norm(owner_name) if owner_name else ""
-    hits = []
+    owner_key = _company_key(owner_name) if owner_name else ""
+    hits, possible = [], []
     for e in entries:
         e_imo = str(e.get("imo") or "").strip()
+        info = {"name": e["name"], "list": e.get("list", "OFAC-SDN"), "program": e.get("program", "")}
         if e_imo and e_imo == str(imo).strip():
-            hits.append({"name": e["name"], "list": e.get("list", "OFAC-SDN"),
-                         "program": e.get("program", ""), "matched_on": "imo"})
+            hits.append({**info, "matched_on": "imo"})
         elif owner and _norm(e["name"]) == owner:
-            hits.append({"name": e["name"], "list": e.get("list", "OFAC-SDN"),
-                         "program": e.get("program", ""), "matched_on": "owner_name"})
-    return {"imo": imo, "match": bool(hits), "hits": hits, "source": source}
+            hits.append({**info, "matched_on": "owner_name"})
+        elif owner_key and _company_key(e["name"]) == owner_key:
+            possible.append({**info, "matched_on": "owner_name_ignoring_legal_form"})
+    return {"imo": imo, "match": bool(hits), "hits": hits,
+            "possible_match": bool(possible), "possible_hits": possible, "source": source}
 
 
 def get_owner_record(owner_name: str) -> dict:
     """Fleet-wide PSC record for the registered owner (all ships, last 36 months)."""
     rows, mode = _owners()
-    o = rows.get(_norm(owner_name or ""))
+    o = rows.get(_company_key(owner_name or ""))
     if o is None:
         return {"found": False, "owner": owner_name, "inspections": 0, "deficiencies": 0,
                 "detentions": 0, "source": mode,

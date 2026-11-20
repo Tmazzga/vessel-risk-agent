@@ -49,7 +49,19 @@ points = max × (Z × own index + (1 − Z) × baseline index),   Z = n / (n + k
 - Sanctions match on the vessel or the owner.
 - Class suspended or withdrawn. Hull policies require the ship to stay in class.
 
+**Possible sanctions match** (the owner name only matches once legal-form words like Ltd, Co or SA are ignored): raised to at least REFER so a person confirms it.
+
 A declined vessel isn't given a premium quote.
+
+## Input checks
+
+Impossible inputs are rejected instead of scored: negative or non-whole counts, more detentions than inspections, or a build year before 1900 or in the future. The agent then recommends REFER and asks for the data to be checked; the form shows what's wrong.
+
+Vessel types are matched through aliases (bulker, car carrier, oil tanker...). A type the model doesn't know scores as Other and is flagged in the notes.
+
+## Risk levers
+
+`find_risk_levers` tries each actionable change on its own (clear open class items, reflag to a white-list flag, move to an IACS class society) and reports how much each lowers the total. The agent turns these into conditions for ACCEPT WITH CONDITIONS or REFER; the form lists them with a "Try it" button.
 
 ## Premium
 
@@ -58,9 +70,21 @@ premium = 1.2% × insured value × relativity × 1.30 loading
 relativity = 0.4 + 0.012 × total score        (score 50 = 1.0×, the average-risk rate)
 ```
 
+## Checking the model
+
+| Script | Question | Run |
+|---|---|---|
+| `eval/validate_scores.py` | Do higher scores predict more incidents? Compares incident rates across score quarters with 95% intervals, and checks each half of the score separately. | `python -m eval.validate_scores --outcomes data/processed/outcomes.csv` |
+| `eval/fairness_flags.py` | Does the flag factor push ships with clean records into worse bands? Re-scores every ship on a white-list flag. | `python -m eval.fairness_flags` |
+
+Both write an HTML report with a chart to `eval/reports/`. Add `--demo` to try them on a synthetic cohort; those results only show the scripts work and are labeled as such.
+
+`outcomes.csv` columns: `imo, events, exposure_years`. Events must come from a window **after** the inspection data was pulled, otherwise detentions count twice. Casualties are rare, so PSC detentions in the next 12–24 months are a more practical outcome.
+
 ## Known limitations
 
 - Weights and baselines are judgment calls until fitted on casualty or detention data.
 - Vessel type points are rough relative risk, not measured loss rates.
 - PSC records over-represent ships that call at U.S. and European ports.
-- Flag points use the Paris MOU list, which judges flag states as a group, not individual ships. Robert's fairness check should test whether this penalizes ships with good records unfairly.
+- Flag points use the Paris MOU list, which judges flag states as a group, not individual ships. `eval/fairness_flags.py` measures how often this pushes a ship with a clean record into a worse band.
+- When an owner has few inspections, the owner score falls back toward the industry baseline. That can pull a very risky ship's total under the DECLINE line (demo ship DEMO OLD COASTER: vessel 40.9/50, total 63.5, REFER).

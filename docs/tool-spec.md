@@ -9,8 +9,8 @@ Internals can change freely; input and output shapes can't change without tellin
 |---|---|---|
 | `get_vessel_profile` | `imo` | `found, name, type, year_built, flag, flag_list, class_society, iacs_member, class_status, gross_tonnage, owner, insured_value_usd, source, missing_fields?` |
 | `get_psc_history` | `imo` | `found, inspections, deficiencies, detentions, last_inspection, source` |
-| `check_sanctions` | `imo, owner_name` | `match, hits[{name, list, program, matched_on}], source` |
-| `get_owner_record` | `owner_name` | `found, owner, fleet_size, inspections, deficiencies, detentions, period, source` (counts are 0 when not found) |
+| `check_sanctions` | `imo, owner_name` | `match, hits[{name, list, program, matched_on}], possible_match, possible_hits[...], source` |
+| `get_owner_record` | `owner_name` | `found, owner, fleet_size, inspections, deficiencies, detentions, period, source` (counts are 0 when not found; names match ignoring case, punctuation and legal-form words) |
 
 Real sources: Equasis (ship and company pages, by hand only), USCG PSIX, Paris MOU THETIS, OFAC SDN list. See `docs/data-collection.md`.
 
@@ -18,10 +18,11 @@ Real sources: Equasis (ship and company pages, by hand only), USCG PSIX, Paris M
 
 | Tool | Input | Output |
 |---|---|---|
-| `score_risk` | `vessel_type, year_built, flag_list, iacs_member, class_status, psc_inspections, psc_deficiencies, psc_detentions, owner_inspections, owner_deficiencies, owner_detentions, sanctions_match` (null = unknown) | `total (0-100), vessel_score (0-50), owner_score (0-50), vessel{factors, credibility_z}, owner{factors, credibility_z}, recommendation, overrides[], notes[], missing[], model_version` |
+| `score_risk` | `vessel_type, year_built, flag_list, iacs_member, class_status, psc_inspections, psc_deficiencies, psc_detentions, owner_inspections, owner_deficiencies, owner_detentions, sanctions_match, sanctions_possible` (null = unknown) | `total (0-100), vessel_score (0-50), owner_score (0-50), vessel{factors, credibility_z}, owner{factors, credibility_z}, recommendation, overrides[], notes[], missing[], model_version` |
+| `find_risk_levers` | same as `score_risk` | `current_total, current_recommendation, levers[{change, field, to, new_total, reduction, new_recommendation}]`, largest reduction first |
 | `price_premium` | `score` (the total), `insured_value_usd` | `relativity, expected_loss_usd, premium_usd, rate_on_value_pct, model_version` |
 
-Each factor is `{label, points, max, detail}`. The method is in `docs/scoring-model.md`.
+Each factor is `{label, points, max, detail}`. Impossible inputs return `{error, errors[]}` instead of a score. The method is in `docs/scoring-model.md`.
 
 Open questions for calibration:
 

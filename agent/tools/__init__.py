@@ -1,6 +1,6 @@
 """Tool registry: JSON schemas the LLM sees, mapped to the Python functions."""
 from .data_tools import check_sanctions, get_owner_record, get_psc_history, get_vessel_profile
-from .model_tools import price_premium, score_risk
+from .model_tools import find_risk_levers, price_premium, score_risk
 
 TOOL_FUNCTIONS = {
     "get_vessel_profile": get_vessel_profile,
@@ -8,6 +8,7 @@ TOOL_FUNCTIONS = {
     "check_sanctions": check_sanctions,
     "get_owner_record": get_owner_record,
     "score_risk": score_risk,
+    "find_risk_levers": find_risk_levers,
     "price_premium": price_premium,
 }
 
@@ -26,7 +27,7 @@ TOOL_SCHEMAS = [
     },
     {
         "name": "check_sanctions",
-        "description": "Screen the vessel IMO and registered owner name against the sanctions list.",
+        "description": "Screen the vessel IMO and registered owner name against the sanctions list. match = confirmed hit; possible_match = the owner name only matches once legal-form words (Ltd, Co, SA) are ignored, so a person must confirm.",
         "input_schema": {
             "type": "object",
             "properties": {**_imo, "owner_name": {"type": "string"}},
@@ -41,7 +42,7 @@ TOOL_SCHEMAS = [
     },
     {
         "name": "score_risk",
-        "description": "Deterministic risk score, higher = riskier. Vessel score (0-50) + owner score (0-50) = total (0-100), with per-factor points, a recommendation, and any automatic overrides (sanctions match or suspended class force DECLINE). Always use this for scores and the recommendation band; never estimate or add them up yourself. Pass null for anything unknown.",
+        "description": "Deterministic risk score, higher = riskier. Vessel score (0-50) + owner score (0-50) = total (0-100), with per-factor points, a recommendation, and any automatic overrides (sanctions match or suspended class force DECLINE). Always use this for scores and the recommendation band; never estimate or add them up yourself. Pass null for anything unknown. Returns {\"error\": ...} if an input is impossible (negative counts, more detentions than inspections, impossible build year).",
         "input_schema": {
             "type": "object",
             "properties": {
@@ -56,13 +57,19 @@ TOOL_SCHEMAS = [
                 "owner_inspections": {"type": "integer", "description": "From get_owner_record; 0 if not found"},
                 "owner_deficiencies": {"type": "integer"},
                 "owner_detentions": {"type": "integer"},
-                "sanctions_match": {"type": "boolean", "description": "From check_sanctions"},
+                "sanctions_match": {"type": "boolean", "description": "check_sanctions 'match'"},
+                "sanctions_possible": {"type": "boolean", "description": "check_sanctions 'possible_match'"},
             },
             "required": ["vessel_type", "year_built", "flag_list", "iacs_member", "class_status",
                          "psc_inspections", "psc_deficiencies", "psc_detentions",
                          "owner_inspections", "owner_deficiencies", "owner_detentions",
                          "sanctions_match"],
         },
+    },
+    {
+        "name": "find_risk_levers",
+        "description": "Takes the same inputs as score_risk. Tests each actionable change (clear class items, reflag to a white-list flag, move to an IACS class society) one at a time and returns how much each would lower the total score, largest first. Use it to propose conditions for ACCEPT WITH CONDITIONS or REFER.",
+        "input_schema": {"$ref_score_risk": True},
     },
     {
         "name": "price_premium",
@@ -77,6 +84,12 @@ TOOL_SCHEMAS = [
         },
     },
 ]
+
+
+# find_risk_levers takes exactly the score_risk inputs.
+for _t in TOOL_SCHEMAS:
+    if _t["input_schema"].get("$ref_score_risk"):
+        _t["input_schema"] = next(x for x in TOOL_SCHEMAS if x["name"] == "score_risk")["input_schema"]
 
 
 def run_tool(name: str, args: dict) -> dict:
