@@ -90,8 +90,14 @@ def run_mock(request: str, on_event=print) -> str:
         "flag_list": prof["flag_list"], "iacs_member": prof["iacs_member"],
         "inspections": psc["inspections"], "deficiencies": psc["deficiencies"],
         "detentions": psc["detentions"]})
-    price = call("price_premium", {"score": score["score"],
-                                   "insured_value_usd": prof["insured_value_usd"]})
+    if "error" in score:
+        return (f"RECOMMENDATION: REFER\nCould not score IMO {imo}: {score['error']} [score_vessel]\n"
+                f"Missing fields: {', '.join(prof.get('missing_fields', [])) or 'none'} [get_vessel_profile]")
+    if prof.get("insured_value_usd"):
+        price = call("price_premium", {"score": score["score"],
+                                       "insured_value_usd": prof["insured_value_usd"]})
+    else:
+        price = None
 
     if sanc["match"]:
         rec = "DECLINE (sanctions match)"
@@ -107,13 +113,16 @@ def run_mock(request: str, on_event=print) -> str:
     if score["credibility_z"] < 0.5:
         gaps.append(f"- Thin PSC record ({psc['inspections']} inspections); credibility weight "
                     f"{score['credibility_z']} so score leans on peer cohort [score_vessel]")
+    for f in prof.get("missing_fields", []):
+        gaps.append(f"- Missing {f} [get_vessel_profile]")
     gaps.append("- Mock mode: memo is templated, not LLM-written")
 
     return "\n".join([
         f"VESSEL: {prof['name']} (IMO {imo}), {prof['type']}, built {prof['year_built']} [get_vessel_profile]",
         f"RECOMMENDATION: {rec}",
         f"RISK SCORE: {score['score']}/100 [score_vessel]",
-        f"PREMIUM: ${price['premium_usd']:,} ({price['rate_on_value_pct']}% of value) [price_premium]",
+        (f"PREMIUM: ${price['premium_usd']:,} ({price['rate_on_value_pct']}% of value) [price_premium]"
+         if price else "PREMIUM: not priced, insured value missing [get_vessel_profile]"),
         "TOP RISK DRIVERS:",
         *[f"- {k}: {v} pts [score_vessel]" for k, v in top],
         *([f"- Sanctions match: {sanc['hits'][0]['name']} on {sanc['hits'][0]['list']} [check_sanctions]"]
