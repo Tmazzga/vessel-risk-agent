@@ -33,15 +33,21 @@ pip install -r requirements.txt
 # Offline scripted run (no API key)
 python -m agent.agent --mock "Assess IMO 9900002 for H&M cover"
 
-# Real agent
+# Real agent, free: Google Gemini (key from aistudio.google.com, no card)
+export GEMINI_API_KEY=...
+python -m agent.agent --provider gemini --chat "Assess IMO 9900002"
+
+# Real agent on Claude
 export ANTHROPIC_API_KEY=...
 python -m agent.agent "Assess IMO 9900002 for H&M cover"
+
+# Also works with Groq or a local Ollama model: see agent/providers.py
 
 # Ask follow-ups ("what if it had one fewer detention?") after the memo
 python -m agent.agent --chat --mock "Assess IMO 9900002"
 
 # Cache demo runs, then open the web form + agent replay at http://localhost:8000
-python -m agent.export_demo            # add --live for real LLM runs
+python -m agent.export_demo            # add --live --provider gemini for real LLM runs
 python -m http.server -d web 8000
 
 # Real data (see docs/data-collection.md)
@@ -66,6 +72,7 @@ Demo vessels (fictional, `9900001`–`9900009`): clean, high-risk, thin data + s
 | Path | What | Owner |
 |---|---|---|
 | `agent/agent.py` | Tool-calling loop, system prompt, mock runner | Ty |
+| `agent/providers.py` | Same agent on Gemini, Groq, Ollama, or any OpenAI-compatible model | Ty |
 | `agent/tools/data_tools.py` | Vessel profile, PSC, sanctions, owner fleet record | Ty |
 | `agent/tools/scoring.py` | Vessel + owner risk score, credibility, pricing | Yuvraj |
 | `web/risk_config.json` | Every scoring weight and threshold (shared by agent and web form) | Yuvraj |

@@ -1,7 +1,8 @@
 """Underwriting agent: LLM tool-calling loop (owner: Ty).
 
 Usage:
-    python -m agent.agent "Assess IMO 9900002 for hull & machinery cover"
+    python -m agent.agent --provider gemini --chat "Assess IMO 9900002"   # free (see agent/providers.py)
+    python -m agent.agent "Assess IMO 9900002 for hull & machinery cover"  # Claude (ANTHROPIC_API_KEY)
     python -m agent.agent --mock "Assess IMO 9900002"     # no API key needed
     python -m agent.agent --chat                          # assess, then ask follow-ups
     python -m agent.agent --chat --mock
@@ -232,6 +233,19 @@ class MockSession:
         return "\n".join(lines)
 
 
+PROVIDERS = ["anthropic", "gemini", "groq", "ollama", "openai", "mock"]
+
+
+def make_session(provider: str = "anthropic"):
+    """The agent on any supported LLM. 'mock' is the scripted stand-in (no LLM)."""
+    if provider == "mock":
+        return MockSession()
+    if provider == "anthropic":
+        return AgentSession()
+    from agent.providers import OpenAICompatSession
+    return OpenAICompatSession(provider)
+
+
 def run_agent(request: str, on_event=print) -> str:
     return AgentSession().ask(request, on_event)
 
@@ -244,13 +258,15 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("request", nargs="?", help="omit with --chat to be prompted")
     p.add_argument("--mock", action="store_true", help="scripted run, no API key needed")
+    p.add_argument("--provider", choices=PROVIDERS, default=os.environ.get("AGENT_PROVIDER", "anthropic"),
+                   help="which LLM runs the agent (default: anthropic, or $AGENT_PROVIDER)")
     p.add_argument("--chat", action="store_true", help="keep asking follow-up questions")
     a = p.parse_args()
 
     def log(ev):
         print(json.dumps(ev), file=sys.stderr)
 
-    session = MockSession() if a.mock else AgentSession()
+    session = make_session("mock" if a.mock else a.provider)
     request = a.request or (input("> ") if a.chat else None)
     if not request:
         p.error("give a request, or use --chat")
