@@ -137,3 +137,21 @@ def test_real_openai_sdk_against_local_fake_server(monkeypatch):
     assert seen[0]["tools"][0]["type"] == "function" and seen[0]["model"] == "fake-model"
     tool_msg = seen[1]["messages"][-1]
     assert tool_msg["role"] == "tool" and tool_msg["tool_call_id"] == "call_1"
+
+
+def test_bad_key_stops_with_a_clear_message():
+    class Rejecting:
+        def __init__(self):
+            self.chat = NS(completions=self)
+
+        def create(self, **kw):
+            err = Exception("API key not valid")
+            err.status_code = 401
+            raise err
+
+    try:
+        OpenAICompatSession(client=Rejecting(), model="fake").ask("hi", lambda e: None)
+    except SystemExit as e:
+        assert "key was rejected" in str(e)
+    else:
+        raise AssertionError("expected a SystemExit")
