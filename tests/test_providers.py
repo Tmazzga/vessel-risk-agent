@@ -155,3 +155,29 @@ def test_bad_key_stops_with_a_clear_message():
         assert "key was rejected" in str(e)
     else:
         raise AssertionError("expected a SystemExit")
+
+
+def test_provider_extras_like_thought_signatures_are_sent_back_unchanged():
+    class Msg:
+        """Stands in for the SDK's message object, with an extra field the way Gemini 3 adds one."""
+        content = None
+        tool_calls = [_call("get_psc_history", {"imo": "9900002"})]
+
+        def model_dump(self, exclude_none=False):
+            return {"role": "assistant", "tool_calls": [{
+                "id": "c1", "type": "function",
+                "function": {"name": "get_psc_history", "arguments": json.dumps({"imo": "9900002"})},
+                "extra_content": {"google": {"thought_signature": "SIG123"}}}]}
+
+    client = FakeClient([NS(choices=[NS(message=Msg())]), _reply("done")])
+    OpenAICompatSession(client=client, model="fake").ask("x", lambda e: None)
+    sent_back = client.sent[1][2]
+    assert sent_back["role"] == "assistant" and sent_back["content"] is None
+    assert sent_back["tool_calls"][0]["extra_content"]["google"]["thought_signature"] == "SIG123"
+
+
+def test_owner_tools_tell_the_model_where_the_name_comes_from():
+    from agent.tools import TOOL_SCHEMAS
+    for name in ("check_sanctions", "get_owner_record"):
+        t = next(x for x in TOOL_SCHEMAS if x["name"] == name)
+        assert "get_vessel_profile" in t["input_schema"]["properties"]["owner_name"]["description"]

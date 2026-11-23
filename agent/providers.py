@@ -93,6 +93,25 @@ class OpenAICompatSession:
         self.messages = [{"role": "system", "content": system_prompt or SYSTEM_PROMPT}]
         self.max_steps, self.sleep = max_steps, sleep
 
+    @staticmethod
+    def _echo(msg, calls):
+        """The assistant turn to send back next time. Gemini 3 attaches hidden
+        'thought signatures' to tool calls that must be returned exactly as
+        received, so keep the provider's message whole (extra fields included)
+        instead of rebuilding it."""
+        if hasattr(msg, "model_dump"):
+            entry = msg.model_dump(exclude_none=True)
+            entry["role"] = "assistant"
+            entry.setdefault("content", None if calls else "")
+            return entry
+        entry = {"role": "assistant", "content": msg.content or (None if calls else "")}
+        if calls:
+            entry["tool_calls"] = [{"id": c.id, "type": "function",
+                                    "function": {"name": c.function.name,
+                                                 "arguments": c.function.arguments or "{}"}}
+                                   for c in calls]
+        return entry
+
     def _log(self, msg):
         print(f"[{self.provider}] {msg}", file=sys.stderr, flush=True)
 
@@ -117,7 +136,9 @@ class OpenAICompatSession:
                 delay = min(delay * 2, 60)
 
     def _explain(self, status, e):
-        detail = str(getattr(e, "message", "") or e)[:300]
+        body = getattr(e, "body", None)
+        resp = getattr(e, "response", None)
+        detail = (json.dumps(body) if body else getattr(resp, "text", "") or str(e))[:600]
         hints = {
             400: "The request was rejected. Often a model name issue: set AGENT_MODEL to a current model.",
             401: "The API key was rejected. Check you copied the whole key, in quotes, from the provider's API key page.",
@@ -133,13 +154,7 @@ class OpenAICompatSession:
             self._log(f"asking {self.model} (step {step + 1})...")
             msg = self._create().choices[0].message
             calls = msg.tool_calls or []
-            entry = {"role": "assistant", "content": msg.content or (None if calls else "")}
-            if calls:
-                entry["tool_calls"] = [{"id": c.id, "type": "function",
-                                        "function": {"name": c.function.name,
-                                                     "arguments": c.function.arguments or "{}"}}
-                                       for c in calls]
-            self.messages.append(entry)
+            self.messages.append(self._echo(msg, calls))
             if not calls:
                 return msg.content or ""
             for c in calls:

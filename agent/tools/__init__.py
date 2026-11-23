@@ -30,14 +30,14 @@ TOOL_SCHEMAS = [
         "description": "Screen the vessel IMO and registered owner name against the sanctions list. match = confirmed hit; possible_match = the owner name only matches once legal-form words (Ltd, Co, SA) are ignored, so a person must confirm.",
         "input_schema": {
             "type": "object",
-            "properties": {**_imo, "owner_name": {"type": "string"}},
+            "properties": {**_imo, "owner_name": {"type": "string", "description": "Exactly the owner returned by get_vessel_profile"}},
             "required": ["imo", "owner_name"],
         },
     },
     {
         "name": "get_owner_record",
         "description": "Fleet-wide Port State Control record for the registered owner (all its ships, last 36 months): inspections, deficiencies, detentions. found=false means no record, and the owner score falls back to the industry baseline.",
-        "input_schema": {"type": "object", "properties": {"owner_name": {"type": "string"}},
+        "input_schema": {"type": "object", "properties": {"owner_name": {"type": "string", "description": "Exactly the owner returned by get_vessel_profile"}},
                          "required": ["owner_name"]},
     },
     {
