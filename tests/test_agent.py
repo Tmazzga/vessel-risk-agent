@@ -101,3 +101,8 @@ def test_prompt_demands_citations_on_every_numeric_line():
     assert "EVERY line that contains a number" in SYSTEM_PROMPT
     assert "Never compute anything yourself" in SYSTEM_PROMPT
     assert "[score_risk]" in SYSTEM_PROMPT.split("Memo format:")[1]
+
+
+def test_checker_skips_score_scales_with_or_without_spaces():
+    events = [{"event": "tool_result", "tool": "score_risk", "output": {"total": 26.6, "v": 13.3}}]
+    assert check("RISK SCORE: 26.6 / 100 (vessel 13.3 / 50) [score_risk]", events)["pass"]
