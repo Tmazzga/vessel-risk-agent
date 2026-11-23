@@ -16,6 +16,7 @@ agent/agent.py; only the message format differs.
 import copy
 import json
 import os
+import sys
 import time
 
 PRESETS = {
@@ -84,32 +85,52 @@ class OpenAICompatSession:
         if client is None:
             from openai import OpenAI
             cfg = resolve(provider)
-            client = OpenAI(base_url=cfg["base_url"], api_key=cfg["api_key"])
+            # Our own retry loop below reports what it's doing; the SDK's would retry silently.
+            client = OpenAI(base_url=cfg["base_url"], api_key=cfg["api_key"], timeout=90, max_retries=0)
             model = model or cfg["model"]
         self.client, self.model, self.provider = client, model, provider
         self.tools = to_openai_tools(tools or TOOL_SCHEMAS)
         self.messages = [{"role": "system", "content": system_prompt or SYSTEM_PROMPT}]
         self.max_steps, self.sleep = max_steps, sleep
 
+    def _log(self, msg):
+        print(f"[{self.provider}] {msg}", file=sys.stderr, flush=True)
+
     def _create(self):
-        """Call the model, waiting and retrying on free-tier rate limits."""
+        """Call the model, waiting and retrying on free-tier rate limits and timeouts."""
         delay = 5
         for attempt in range(6):
             try:
                 return self.client.chat.completions.create(
                     model=self.model, messages=self.messages, tools=self.tools,
                     tool_choice="auto", max_tokens=2000, temperature=0)
-            except Exception as e:  # openai.APIStatusError and friends
+            except Exception as e:  # openai.APIStatusError, APITimeoutError, APIConnectionError
                 status = getattr(e, "status_code", None)
-                if status not in RETRY_STATUS or attempt == 5:
+                timeout = type(e).__name__ in ("APITimeoutError", "APIConnectionError")
+                if status in (400, 401, 403, 404):
+                    raise SystemExit(self._explain(status, e)) from None
+                if (status not in RETRY_STATUS and not timeout) or attempt == 5:
                     raise
+                why = "rate limit (free tier)" if status == 429 else f"server busy ({status})" if status else "no response"
+                self._log(f"{why}; waiting {delay}s and retrying ({attempt + 1}/5)...")
                 self.sleep(delay)
                 delay = min(delay * 2, 60)
+
+    def _explain(self, status, e):
+        detail = str(getattr(e, "message", "") or e)[:300]
+        hints = {
+            400: "The request was rejected. Often a model name issue: set AGENT_MODEL to a current model.",
+            401: "The API key was rejected. Check you copied the whole key, in quotes, from the provider's API key page.",
+            403: "The key isn't allowed to use this API. For Gemini, create the key in Google AI Studio (Get API key).",
+            404: f"Model '{self.model}' wasn't found. Set AGENT_MODEL to a model your account lists.",
+        }
+        return f"[{self.provider}] error {status}: {hints[status]}\nDetails: {detail}"
 
     def ask(self, text: str, on_event=print) -> str:
         from agent.tools import run_tool
         self.messages.append({"role": "user", "content": text})
-        for _ in range(self.max_steps):
+        for step in range(self.max_steps):
+            self._log(f"asking {self.model} (step {step + 1})...")
             msg = self._create().choices[0].message
             calls = msg.tool_calls or []
             entry = {"role": "assistant", "content": msg.content or (None if calls else "")}
