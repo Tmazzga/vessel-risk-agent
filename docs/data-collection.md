@@ -19,10 +19,11 @@ Copy `data/processed/vessels_template.csv` to `data/processed/vessels.csv` and f
 | Column | Where to get it | Notes |
 |---|---|---|
 | `imo` | Equasis / USCG PSIX | 7 digits; the validator checks the check digit |
-| `name`, `type`, `year_built`, `gross_tonnage` | Equasis ship info | `type` = "Bulk Carrier" for our cohort |
+| `name`, `type`, `year_built`, `gross_tonnage` | Equasis ship info | `type` is one of Container Ship, Tanker, Bulk Carrier, General Cargo, Ro-Ro, Other |
 | `flag` | Equasis | Country name |
 | `flag_list` | Paris MOU white/grey/black list (current year) | `white`, `grey`, or `black` |
 | `class_society`, `iacs_member` | Equasis classification section | `true` if DNV, ABS, LR, BV, ClassNK, KR, RINA, CCS, IRS, CRS, PRS, TL |
+| `class_status` | Equasis classification section (status, survey dates) | `in_class`, `conditions` (open conditions of class), `overdue_survey`, or `suspended` (suspended or withdrawn) |
 | `owner` | Equasis registered owner | Exact spelling helps the sanctions match |
 | `insured_value_usd` | Our estimate | Ask Yuvraj for the valuation rule; leave blank if unknown |
 | `psc_inspections`, `psc_deficiencies`, `psc_detentions` | Equasis PSC section (all MOUs), or USCG PSIX for U.S. only | Count over the same window for every ship, e.g. last 36 months |
@@ -31,10 +32,23 @@ Copy `data/processed/vessels_template.csv` to `data/processed/vessels.csv` and f
 
 **Equasis rule:** its terms don't allow scraping or redistributing raw data. Look ships up by hand and only record the fields above. Don't commit screenshots or exports.
 
-## 3. Check it
+## 3. Owner spreadsheet (by hand)
+
+Copy `data/processed/owners_template.csv` to `data/processed/owners.csv`, one row per registered owner in `vessels.csv`. Spell `owner` exactly as in `vessels.csv` (case and punctuation don't matter).
+
+| Column | Where to get it | Notes |
+|---|---|---|
+| `owner` | Equasis company page | Registered owner name |
+| `fleet_size` | Equasis company page | Number of ships, context only |
+| `inspections`, `deficiencies`, `detentions` | Equasis company PSC summary | Whole fleet, last 36 months |
+| `period`, `source`, `date_pulled` | You | e.g. `last 36 months`, `Equasis`, `2026-11-21` |
+
+Owners without a row get the industry baseline, and the memo flags it as a data gap.
+
+## 4. Check it
 
 ```bash
-python -m pipeline.validate_vessels
+python -m pipeline.validate_vessels   # checks vessels.csv and owners.csv
 ```
 
 Fix anything it flags (usually a mistyped IMO or a misspelled flag list), then commit. Once `vessels.csv` exists, the agent uses it automatically instead of the demo ships.

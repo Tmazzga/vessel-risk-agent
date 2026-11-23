@@ -1,36 +1,40 @@
 # Tool Spec
 
 The agent calls these tools. Each tool is deterministic Python; the LLM never computes a number itself.
-**Lock the inputs and outputs below this week.** Internals can change freely; shapes can't without telling the team.
+Internals can change freely; input and output shapes can't change without telling the team.
 
 ## Data tools: owner Ty (`agent/tools/data_tools.py`)
 
 | Tool | Input | Output |
 |---|---|---|
-| `get_vessel_profile` | `imo` | `found, name, type, year_built, flag, flag_list, class_society, iacs_member, gross_tonnage, owner, insured_value_usd, source` |
+| `get_vessel_profile` | `imo` | `found, name, type, year_built, flag, flag_list, class_society, iacs_member, class_status, gross_tonnage, owner, insured_value_usd, source, missing_fields?` |
 | `get_psc_history` | `imo` | `found, inspections, deficiencies, detentions, last_inspection, source` |
-| `check_sanctions` | `imo, owner_name` | `match, hits[{name, list, matched_on}], source` |
+| `check_sanctions` | `imo, owner_name` | `match, hits[{name, list, program, matched_on}], possible_match, possible_hits[...], source` |
+| `get_owner_record` | `owner_name` | `found, owner, fleet_size, inspections, deficiencies, detentions, period, source` (counts are 0 when not found; names match ignoring case, punctuation and legal-form words) |
 
-Real sources to replace the sample data: USCG PSIX, Paris MOU THETIS, Equasis (manual pulls only, do not scrape or commit raw data), OFAC SDN list.
+Real sources: Equasis (ship and company pages, by hand only), USCG PSIX, Paris MOU THETIS, OFAC SDN list. See `docs/data-collection.md`.
 
-## Model tools: owner math teammate (`agent/tools/model_tools.py`)
+## Model tools: owner Yuvraj (`agent/tools/scoring.py`, numbers in `web/risk_config.json`)
 
 | Tool | Input | Output |
 |---|---|---|
-| `score_vessel` | `vessel_type, year_built, flag_list, iacs_member, inspections, deficiencies, detentions` | `score (0-100), contributions{age, psc, flag, class}, credibility_z, cohort_psc_risk, model_version` |
-| `price_premium` | `score, insured_value_usd` | `relativity, expected_loss_usd, premium_usd, rate_on_value_pct, model_version` |
+| `score_risk` | `vessel_type, year_built, flag_list, iacs_member, class_status, psc_inspections, psc_deficiencies, psc_detentions, owner_inspections, owner_deficiencies, owner_detentions, sanctions_match, sanctions_possible` (null = unknown) | `total (0-100), vessel_score (0-50), owner_score (0-50), vessel{factors, credibility_z}, owner{factors, credibility_z}, recommendation, overrides[], notes[], missing[], model_version` |
+| `find_risk_levers` | same as `score_risk` | `current_total, current_recommendation, levers[{change, field, to, new_total, reduction, new_recommendation}]`, largest reduction first |
+| `price_premium` | `score` (the total), `insured_value_usd` | `relativity, expected_loss_usd, premium_usd, rate_on_value_pct, model_version` |
 
-Current math is **placeholder**. Questions to answer before replacing it:
+Each factor is `{label, points, max, detail}`. Impossible inputs return `{error, errors[]}` instead of a score. The method is in `docs/scoring-model.md`.
 
-1. **Features:** Which inputs does the score need? Add or drop any from the list above.
-2. **Missing data:** If a value is missing, does `score_vessel` reject, impute, or rely more on the cohort?
-3. **Cohorts:** What defines the peer group for credibility weighting (type, age band, flag)? What is `k`?
-4. **Weights:** Fitted how? (e.g. Poisson regression of casualty counts with vessel-years as exposure)
-5. **Pricing:** Where do the base loss rate, severity, and loading come from? What does score 50 mean?
-6. **Validation:** Which cohort and date cutoff for the out-of-sample casualty check?
+Open questions for calibration:
+
+1. **Weights:** fit factor maxes on real outcomes (e.g. Poisson regression on future detentions or casualties).
+2. **Baselines:** replace the peer and industry baselines with averages from our real cohort.
+3. **k values:** how many inspections before a record is trusted (currently 5 for a ship, 20 for a fleet)?
+4. **Vessel type points:** replace judgment with casualty rates by ship type.
+5. **Pricing:** where should the base rate and loading come from?
 
 ## Rules the whole team agrees to
 
 - The LLM never states a number that didn't come from a tool result.
-- Every memo figure cites its tool in brackets, e.g. `[score_vessel]`.
+- Every memo figure cites its tool in brackets, e.g. `[score_risk]`.
 - Tools return `{"error": ...}` on failure; the agent reports gaps instead of guessing.
+- Scoring numbers only change in `web/risk_config.json`, so the agent and the web form stay identical.

@@ -33,47 +33,232 @@
   .ev.show { opacity: 1; }
   .ev.call { background: var(--call); } .ev.result { background: var(--result); }
   .ev b { font-family: system-ui, sans-serif; }
-  pre.memo { margin: 0; white-space: pre-wrap; font: 13px/1.6 ui-monospace, Menlo, monospace; }
+  .q { font-weight: 600; margin: 12px 0 8px; color: var(--accent); }
+  .q:first-child { margin-top: 0; }
+  pre.memo { margin: 0 0 8px; white-space: pre-wrap; font: 13px/1.6 ui-monospace, Menlo, monospace; }
   .note { color: var(--muted); font-size: 13px; margin-top: 12px; }
+  .lede { color: var(--muted); margin: 0 0 14px; font-size: 14px; }
+  .scorer { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 16px; margin-bottom: 28px; }
+  @media (max-width: 860px) { .scorer { grid-template-columns: 1fr; } }
+  fieldset { border: 0; padding: 0; margin: 0 0 14px; min-width: 0; }
+  legend { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
+           padding: 0; margin-bottom: 6px; }
+  .fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px 10px; }
+  label { display: flex; flex-direction: column; gap: 3px; font-size: 13px; color: var(--muted); }
+  label.check { flex-direction: row; align-items: center; gap: 8px; color: var(--ink); }
+  input, select { font: 14px system-ui, sans-serif; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px;
+                  background: var(--bg); color: var(--ink); min-width: 0; width: 100%; }
+  input[type=checkbox] { width: auto; }
+  input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 0; }
+  .hint { font-size: 12px; color: var(--muted); margin: 6px 0 0; }
+  .warn { color: #b3261e; font-size: 13px; margin: 6px 0 0; }
+  @media (prefers-color-scheme: dark) { .warn { color: #f2b8b5; } }
+  .total { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .total .num { font-size: 44px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+  .total .of { color: var(--muted); font-size: 18px; }
+  .badge { margin-left: auto; padding: 4px 10px; border-radius: 999px; font-weight: 600; font-size: 13px;
+           border: 1px solid currentColor; }
+  .badge.ACCEPT { color: #1e7d32; } .badge.REFER { color: #a15c00; } .badge.DECLINE { color: #b3261e; }
+  .badge.CONDITIONS { color: #6d5d00; }
+  @media (prefers-color-scheme: dark) {
+    .badge.ACCEPT { color: #8fd694; } .badge.REFER { color: #f5b860; } .badge.DECLINE { color: #f2b8b5; }
+    .badge.CONDITIONS { color: #e3d36b; }
+  }
+  .halves { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  .half .row { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); }
+  .half .row b { color: var(--ink); font-variant-numeric: tabular-nums; }
+  .bar { height: 8px; border-radius: 4px; background: var(--line); margin-top: 6px; overflow: hidden; }
+  .bar span { display: block; height: 100%; background: var(--accent); width: 0; transition: width .25s; }
+  .flags { margin: 0 0 12px; padding-left: 18px; font-size: 13px; }
+  .flags li { margin-bottom: 2px; }
+  .flags.over li { color: #b3261e; font-weight: 600; }
+  @media (prefers-color-scheme: dark) { .flags.over li { color: #f2b8b5; } }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 6px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 12px; }
+  td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tr.group td { font-weight: 600; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .05em;
+                padding-top: 12px; }
+  .premium { margin-top: 14px; font-size: 14px; }
+  .premium b { font-size: 18px; font-variant-numeric: tabular-nums; }
+  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 14px; }
+  .toolbar label { flex: 1 1 180px; }
+  .btn { border: 1px solid var(--line); background: var(--bg); color: var(--ink); padding: 6px 10px; border-radius: 6px;
+         cursor: pointer; font: 13px system-ui, sans-serif; white-space: nowrap; }
+  .btn:hover { border-color: var(--accent); }
+  .btn.primary { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+  .errors { margin: 0 0 12px; padding: 10px 12px 10px 28px; border: 1px solid currentColor; border-radius: 6px;
+            color: #b3261e; font-size: 13px; }
+  @media (prefers-color-scheme: dark) { .errors { color: #f2b8b5; } }
+  .levers { margin-top: 16px; }
+  .levers h3, .compare h3 { margin: 0 0 6px; font-size: 13px; color: var(--muted); font-weight: 600; }
+  .lever { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+  .lever span { flex: 1; }
+  .lever b { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .compare { margin: -12px 0 28px; }
+  .compare .head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .compare .head h3 { margin: 0; flex: 1; }
+  td.up { color: #b3261e; } td.down { color: #1e7d32; }
+  @media (prefers-color-scheme: dark) { td.up { color: #f2b8b5; } td.down { color: #8fd694; } }
+  .scroll { overflow-x: auto; }
+  h2.big { font-size: 15px; text-transform: none; letter-spacing: 0; color: var(--ink); margin: 0 0 4px; }
 </style>
 </head>
 <body>
 <header>
   <h1>Vessel Risk Agent</h1>
-  <p>LLM underwriting agent: tool calls on the left, memo on the right. Every figure comes from a tool.</p>
+  <p>Hull &amp; machinery risk: vessel score (0&ndash;50) + owner score (0&ndash;50) = total out of 100. Higher is riskier.</p>
 </header>
 <main>
+  <h2 class="big">Score a vessel</h2>
+  <p class="lede">Enter the vessel and owner details, or load a demo ship. The score updates as you type and uses the same model as the agent.</p>
+  <div class="scorer">
+    <section>
+      <div class="toolbar">
+        <label>Load a demo ship <select id="preset"><option value="">Choose a ship&hellip;</option></select></label>
+        <button type="button" class="btn" id="pin">Pin for comparison</button>
+        <button type="button" class="btn" id="clear">Clear</button>
+      </div>
+      <form id="form" autocomplete="off">
+        <fieldset>
+          <legend>Vessel</legend>
+          <div class="fields">
+            <label>Vessel type <select name="vessel_type" id="f-type"></select></label>
+            <label>Year built <input name="year_built" type="number" min="1950" max="2100" placeholder="e.g. 2012"></label>
+            <label>Flag (Paris MOU list)
+              <select name="flag_list">
+                <option value="white">White</option><option value="grey">Grey</option>
+                <option value="black">Black</option><option value="">Unknown</option>
+              </select></label>
+            <label>Class society
+              <select name="iacs_member">
+                <option value="true">IACS member</option><option value="false">Not IACS</option><option value="">Unknown</option>
+              </select></label>
+            <label>Class status <select name="class_status" id="f-class-status"></select></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Vessel PSC record, last 36 months</legend>
+          <div class="fields">
+            <label>Inspections <input name="psc_inspections" type="number" min="0" value="0"></label>
+            <label>Deficiencies <input name="psc_deficiencies" type="number" min="0" value="0"></label>
+            <label>Detentions <input name="psc_detentions" type="number" min="0" value="0"></label>
+          </div>
+          <p class="warn" id="warn-vessel" hidden>Detentions can't exceed inspections.</p>
+        </fieldset>
+        <fieldset>
+          <legend>Owner fleet PSC record, last 36 months</legend>
+          <div class="fields">
+            <label>Fleet inspections <input name="owner_inspections" type="number" min="0" value="0"></label>
+            <label>Fleet deficiencies <input name="owner_deficiencies" type="number" min="0" value="0"></label>
+            <label>Fleet detentions <input name="owner_detentions" type="number" min="0" value="0"></label>
+          </div>
+          <p class="warn" id="warn-owner" hidden>Detentions can't exceed inspections.</p>
+          <p class="hint">All ships under the registered owner, from the Equasis company record. Leave at 0 if unknown.</p>
+        </fieldset>
+        <fieldset>
+          <legend>Screening and value</legend>
+          <div class="fields">
+            <label>Sanctions screening
+              <select name="sanctions">
+                <option value="none">No match</option>
+                <option value="possible">Possible match (owner name only)</option>
+                <option value="match">Confirmed match</option>
+              </select></label>
+            <label>Insured value (USD) <input name="insured_value_usd" type="number" min="0" step="100000" placeholder="e.g. 18000000"></label>
+          </div>
+        </fieldset>
+      </form>
+    </section>
+    <section aria-live="polite">
+      <ul class="errors" id="r-errors" hidden></ul>
+      <div class="total">
+        <span class="num" id="r-total">0</span><span class="of">/ 100</span>
+        <span class="badge" id="r-rec"></span>
+      </div>
+      <div class="halves">
+        <div class="half"><div class="row"><span>Vessel</span><b id="r-vessel">0 / 50</b></div><div class="bar"><span id="b-vessel"></span></div></div>
+        <div class="half"><div class="row"><span>Owner</span><b id="r-owner">0 / 50</b></div><div class="bar"><span id="b-owner"></span></div></div>
+      </div>
+      <ul class="flags over" id="r-overrides"></ul>
+      <ul class="flags" id="r-notes"></ul>
+      <table>
+        <thead><tr><th>Factor</th><th>Detail</th><th class="n">Points</th></tr></thead>
+        <tbody id="r-factors"></tbody>
+      </table>
+      <p class="premium" id="r-premium"></p>
+      <div class="levers" id="r-levers" hidden>
+        <h3>What would lower this score</h3>
+        <div id="r-lever-list"></div>
+      </div>
+      <p class="note" id="r-version"></p>
+    </section>
+  </div>
+  <section class="compare" id="compare" hidden aria-live="polite">
+    <div class="head"><h3 id="cmp-title">Comparison</h3><button type="button" class="btn" id="unpin">Unpin</button></div>
+    <div class="scroll"><table>
+      <thead><tr><th></th><th class="n" id="cmp-a">Pinned</th><th class="n">Current</th><th class="n">Change</th></tr></thead>
+      <tbody id="cmp-body"></tbody>
+    </table></div>
+  </section>
+
+  <h2 class="big">Agent replay</h2>
+  <p class="lede">The AI agent gathering the same inputs with tools, then writing a memo. Every figure comes from a tool.</p>
   <div class="tabs" id="tabs"></div>
   <div class="grid">
     <section><h2>Agent trace</h2><div id="trace"></div></section>
-    <section><h2>Underwriting memo</h2><pre class="memo" id="memo"></pre></section>
+    <section><h2>Underwriting memo</h2><div id="memo"></div></section>
   </div>
   <p class="note" id="mode"></p>
 </main>
 <script>
 let runs = [], timer = null;
 
+function evEl(ev) {
+  const d = document.createElement('div');
+  d.className = 'ev ' + (ev.event === 'tool_call' ? 'call' : 'result');
+  const body = ev.event === 'tool_call' ? ev.input : ev.output;
+  d.innerHTML = `<b>${ev.event === 'tool_call' ? '→ call' : '← result'} ${ev.tool}</b>\n`;
+  d.appendChild(document.createTextNode(JSON.stringify(body, null, 1)));
+  return d;
+}
+
+function note(text, cls) {
+  const d = document.createElement('div');
+  d.className = cls; d.textContent = text;
+  return d;
+}
+
 function show(i) {
   clearTimeout(timer);
   document.querySelectorAll('.tabs button').forEach((b, j) => b.classList.toggle('active', i === j));
   const run = runs[i], trace = document.getElementById('trace'), memo = document.getElementById('memo');
-  trace.innerHTML = ''; memo.textContent = '';
+  trace.innerHTML = ''; memo.innerHTML = '';
   document.getElementById('mode').textContent =
     run.mode === 'mock' ? 'Cached mock run (scripted, no LLM). Regenerate with python -m agent.export_demo --live.' :
                           'Cached live LLM run.';
-  run.events.forEach(ev => {
-    const d = document.createElement('div');
-    d.className = 'ev ' + (ev.event === 'tool_call' ? 'call' : 'result');
-    const body = ev.event === 'tool_call' ? ev.input : ev.output;
-    d.innerHTML = `<b>${ev.event === 'tool_call' ? '→ call' : '← result'} ${ev.tool}</b>\n`;
-    d.appendChild(document.createTextNode(JSON.stringify(body, null, 1)));
-    trace.appendChild(d);
+  // Steps: each tool event appears in the trace; a memo appears when its exchange ends.
+  const steps = [{q: run.request}];
+  run.events.forEach(ev => steps.push({ev}));
+  steps.push({memo: run.memo});
+  (run.followups || []).forEach(f => {
+    steps.push({q: f.question, follow: true});
+    f.events.forEach(ev => steps.push({ev}));
+    steps.push({memo: f.memo, follow: true, q: f.question});
   });
-  const els = [...trace.children];
   let k = 0;
   (function step() {
-    if (k < els.length) { els[k++].classList.add('show'); timer = setTimeout(step, 450); }
-    else { memo.textContent = run.memo; }
+    if (k >= steps.length) return;
+    const s = steps[k++];
+    let el;
+    if (s.ev) { el = evEl(s.ev); trace.appendChild(el); }
+    else if (s.memo !== undefined) {
+      if (s.follow) memo.appendChild(note('Follow-up: ' + s.q, 'q'));
+      const pre = document.createElement('pre'); pre.className = 'memo'; pre.textContent = s.memo;
+      memo.appendChild(pre);
+    } else { el = note((s.follow ? 'Follow-up: ' : 'Request: ') + s.q, 'q'); trace.appendChild(el); }
+    if (el) requestAnimationFrame(() => el.classList.add('show'));
+    timer = setTimeout(step, s.memo !== undefined ? 1200 : 450);
   })();
 }
 
@@ -90,6 +275,184 @@ fetch('demo.json').then(r => r.json()).then(d => {
 }).catch(() => {
   document.getElementById('memo').textContent = 'No demo.json found. Run: python -m agent.export_demo';
 });
+</script>
+<script type="module">
+import { scoreRisk, pricePremium, findRiskLevers } from './scoring.js';
+
+const form = document.getElementById('form');
+const $ = id => document.getElementById(id);
+const money = n => '$' + Math.round(n).toLocaleString('en-US');
+let cfg, pinned = null, currentName = 'Custom vessel';
+
+function readInputs() {
+  const f = new FormData(form), v = k => f.get(k);
+  const nullable = k => (v(k) === '' || v(k) === null ? null : v(k));
+  return {
+    vessel_type: nullable('vessel_type'), year_built: nullable('year_built'),
+    flag_list: nullable('flag_list'),
+    iacs_member: v('iacs_member') === '' ? null : v('iacs_member') === 'true',
+    class_status: nullable('class_status'),
+    psc_inspections: v('psc_inspections'), psc_deficiencies: v('psc_deficiencies'), psc_detentions: v('psc_detentions'),
+    owner_inspections: v('owner_inspections'), owner_deficiencies: v('owner_deficiencies'), owner_detentions: v('owner_detentions'),
+    sanctions_match: v('sanctions') === 'match',
+    sanctions_possible: v('sanctions') === 'possible',
+    insured_value_usd: v('insured_value_usd'),
+  };
+}
+
+const FRIENDLY = {
+  psc_inspections: 'vessel inspections', psc_deficiencies: 'vessel deficiencies', psc_detentions: 'vessel detentions',
+  owner_inspections: 'fleet inspections', owner_deficiencies: 'fleet deficiencies', owner_detentions: 'fleet detentions',
+  year_built: 'year built',
+};
+const friendly = msg => msg.replace(/\b(psc|owner)_\w+|year_built/g, m => FRIENDLY[m] || m)
+                           .replace(/^./, c => c.toUpperCase());
+
+function li(text) { const e = document.createElement('li'); e.textContent = text; return e; }
+
+function row(cells, cls) {
+  const tr = document.createElement('tr'); if (cls) tr.className = cls;
+  cells.forEach(([t, c, span]) => { const td = document.createElement('td'); td.textContent = t;
+    if (c) td.className = c; if (span) td.colSpan = span; tr.appendChild(td); });
+  return tr;
+}
+
+function evaluate(inp) {
+  const r = scoreRisk(cfg, inp);
+  if (r.error) return { r };
+  const value = +inp.insured_value_usd;
+  const price = r.recommendation !== 'DECLINE' && value > 0 ? pricePremium(cfg, r.total, value) : null;
+  return { r, price, levers: findRiskLevers(cfg, inp).levers };
+}
+
+function render() {
+  const inp = readInputs(), { r, price, levers } = evaluate(inp);
+
+  const errs = $('r-errors');
+  errs.hidden = !r.error;
+  errs.replaceChildren(...(r.errors || []).map(e => li(friendly(e))));
+  if (r.error) {
+    $('r-total').textContent = '–'; $('r-rec').textContent = 'CHECK INPUTS'; $('r-rec').className = 'badge REFER';
+    $('r-vessel').textContent = '– / 50'; $('r-owner').textContent = '– / 50';
+    $('b-vessel').style.width = '0'; $('b-owner').style.width = '0';
+    for (const id of ['r-overrides', 'r-notes', 'r-factors']) $(id).replaceChildren();
+    $('r-premium').textContent = ''; $('r-levers').hidden = true;
+    renderCompare(null);
+    return;
+  }
+
+  $('r-total').textContent = r.total;
+  const rec = $('r-rec'); rec.textContent = r.recommendation;
+  rec.className = 'badge ' + (r.recommendation.includes('CONDITIONS') ? 'CONDITIONS' : r.recommendation);
+  $('r-vessel').textContent = `${r.vessel_score} / 50`;
+  $('r-owner').textContent = `${r.owner_score} / 50`;
+  $('b-vessel').style.width = (r.vessel_score / 50 * 100) + '%';
+  $('b-owner').style.width = (r.owner_score / 50 * 100) + '%';
+
+  $('r-overrides').replaceChildren(...r.overrides.map(li));
+  const notes = [...r.notes, ...r.missing.map(m => `Missing: ${m.replace(/_/g, ' ')}`)];
+  $('r-notes').replaceChildren(...notes.map(li));
+
+  const body = $('r-factors'); body.replaceChildren();
+  [['Vessel', r.vessel], ['Owner', r.owner]].forEach(([name, part]) => {
+    body.appendChild(row([[`${name} · ${part.score} of ${part.max}`, '', 3]], 'group'));
+    Object.values(part.factors).forEach(f =>
+      body.appendChild(row([[f.label], [f.detail], [`${f.points} / ${f.max}`, 'n']])));
+  });
+
+  const pv = $('r-premium');
+  if (r.recommendation === 'DECLINE') pv.textContent = 'Premium: not quoted (DECLINE).';
+  else if (price) {
+    pv.replaceChildren('Indicative annual premium: ', Object.assign(document.createElement('b'), { textContent: money(price.premium_usd) }),
+      ` (${price.rate_on_value_pct}% of insured value, ${price.relativity}x the average-risk rate)`);
+  } else pv.textContent = 'Enter an insured value to see a premium.';
+
+  const list = $('r-lever-list'); list.replaceChildren();
+  $('r-levers').hidden = !levers.length;
+  levers.forEach(l => {
+    const d = document.createElement('div'); d.className = 'lever';
+    const text = document.createElement('span');
+    text.textContent = l.new_recommendation !== r.recommendation ? `${l.change} (becomes ${l.new_recommendation})` : l.change;
+    const cut = document.createElement('b'); cut.textContent = `−${l.reduction} → ${l.new_total}`;
+    const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'btn'; btn.textContent = 'Try it';
+    btn.onclick = () => { form.elements[l.field].value = String(l.to); currentName = 'Custom vessel'; $('preset').value = ''; render(); };
+    d.append(text, cut, btn); list.appendChild(d);
+  });
+
+  $('r-version').textContent = `Model ${r.model_version}. Weights are prototype assumptions, pending calibration on real data.`;
+  renderCompare({ r, price });
+}
+
+function renderCompare(cur) {
+  const box = $('compare');
+  box.hidden = !pinned;
+  if (!pinned) return;
+  $('cmp-title').textContent = `Comparing ${pinned.name} (pinned) with ${currentName}`;
+  $('cmp-a').textContent = pinned.name;
+  const body = $('cmp-body'); body.replaceChildren();
+  if (!cur) { body.appendChild(row([['Fix the inputs above to compare.', '', 4]])); return; }
+  const A = pinned.r, B = cur.r;
+  const delta = (a, b) => { const d = Math.round((b - a) * 10) / 10;
+    return [d === 0 ? '0' : (d > 0 ? '+' : '−') + Math.abs(d), 'n ' + (d > 0 ? 'up' : d < 0 ? 'down' : '')]; };
+  const num = (label, a, b, cls) => body.appendChild(row([[label], [String(a), 'n'], [String(b), 'n'], delta(a, b)], cls));
+  num('Total (of 100)', A.total, B.total);
+  num('Vessel (of 50)', A.vessel_score, B.vessel_score);
+  num('Owner (of 50)', A.owner_score, B.owner_score);
+  body.appendChild(row([['Recommendation'], [A.recommendation, 'n'], [B.recommendation, 'n'], ['', 'n']]));
+  const pa = pinned.price ? money(pinned.price.premium_usd) : 'not quoted';
+  const pb = cur.price ? money(cur.price.premium_usd) : 'not quoted';
+  body.appendChild(row([['Premium'], [pa, 'n'], [pb, 'n'], ['', 'n']]));
+  [['Vessel', 'vessel'], ['Owner', 'owner']].forEach(([name, part]) => {
+    body.appendChild(row([[`${name} factors`, '', 4]], 'group'));
+    for (const [k, f] of Object.entries(A[part].factors)) num(f.label, f.points, B[part].factors[k].points);
+  });
+}
+
+function setForm(vals) {
+  for (const [k, v] of Object.entries(vals)) {
+    const el = form.elements[k]; if (!el) continue;
+    el.value = v === null || v === undefined ? '' : String(v);
+  }
+  render();
+}
+
+function presetFrom(run) {
+  const call = run.events.find(e => e.event === 'tool_call' && e.tool === 'score_risk');
+  const prof = run.events.find(e => e.event === 'tool_result' && e.tool === 'get_vessel_profile');
+  if (!call) return null;
+  const i = call.input;
+  return { ...i, sanctions: i.sanctions_match ? 'match' : i.sanctions_possible ? 'possible' : 'none',
+           insured_value_usd: prof?.output?.insured_value_usd ?? '' };
+}
+
+const [config, demo] = await Promise.all([
+  fetch('risk_config.json').then(r => r.json()),
+  fetch('demo.json').then(r => r.json()).catch(() => ({ runs: [] })),
+]);
+cfg = config;
+$('f-type').replaceChildren(...Object.keys(cfg.vessel.vessel_type.points).map(t => new Option(t, t)),
+                            new Option('Unknown', ''));
+$('f-class-status').replaceChildren(...Object.entries(cfg.vessel.class_status.labels)
+  .filter(([k]) => k !== 'unknown').map(([k, l]) => new Option(l, k)), new Option('Unknown', ''));
+
+const presets = demo.runs.map(run => ({ name: run.name, vals: presetFrom(run) })).filter(p => p.vals);
+const sel = $('preset');
+presets.forEach((p, i) => sel.appendChild(new Option(p.name, i)));
+sel.onchange = () => { if (sel.value === '') return; const p = presets[+sel.value]; currentName = p.name; setForm(p.vals); };
+
+$('clear').onclick = () => { form.reset(); sel.value = ''; currentName = 'Custom vessel'; render(); };
+$('pin').onclick = () => {
+  const { r, price } = evaluate(readInputs());
+  if (r.error) return;
+  pinned = { name: currentName, r, price };
+  render();
+  $('compare').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+};
+$('unpin').onclick = () => { pinned = null; render(); };
+
+form.addEventListener('input', () => { currentName = 'Custom vessel'; sel.value = ''; render(); });
+form.addEventListener('change', render);
+if (presets.length) { sel.value = '1' in presets ? '1' : '0'; sel.onchange(); } else render();
 </script>
 </body>
 </html>
