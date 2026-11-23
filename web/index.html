@@ -33,7 +33,9 @@
   .ev.show { opacity: 1; }
   .ev.call { background: var(--call); } .ev.result { background: var(--result); }
   .ev b { font-family: system-ui, sans-serif; }
-  pre.memo { margin: 0; white-space: pre-wrap; font: 13px/1.6 ui-monospace, Menlo, monospace; }
+  .q { font-weight: 600; margin: 12px 0 8px; color: var(--accent); }
+  .q:first-child { margin-top: 0; }
+  pre.memo { margin: 0 0 8px; white-space: pre-wrap; font: 13px/1.6 ui-monospace, Menlo, monospace; }
   .note { color: var(--muted); font-size: 13px; margin-top: 12px; }
 </style>
 </head>
@@ -46,34 +48,58 @@
   <div class="tabs" id="tabs"></div>
   <div class="grid">
     <section><h2>Agent trace</h2><div id="trace"></div></section>
-    <section><h2>Underwriting memo</h2><pre class="memo" id="memo"></pre></section>
+    <section><h2>Underwriting memo</h2><div id="memo"></div></section>
   </div>
   <p class="note" id="mode"></p>
 </main>
 <script>
 let runs = [], timer = null;
 
+function evEl(ev) {
+  const d = document.createElement('div');
+  d.className = 'ev ' + (ev.event === 'tool_call' ? 'call' : 'result');
+  const body = ev.event === 'tool_call' ? ev.input : ev.output;
+  d.innerHTML = `<b>${ev.event === 'tool_call' ? '→ call' : '← result'} ${ev.tool}</b>\n`;
+  d.appendChild(document.createTextNode(JSON.stringify(body, null, 1)));
+  return d;
+}
+
+function note(text, cls) {
+  const d = document.createElement('div');
+  d.className = cls; d.textContent = text;
+  return d;
+}
+
 function show(i) {
   clearTimeout(timer);
   document.querySelectorAll('.tabs button').forEach((b, j) => b.classList.toggle('active', i === j));
   const run = runs[i], trace = document.getElementById('trace'), memo = document.getElementById('memo');
-  trace.innerHTML = ''; memo.textContent = '';
+  trace.innerHTML = ''; memo.innerHTML = '';
   document.getElementById('mode').textContent =
     run.mode === 'mock' ? 'Cached mock run (scripted, no LLM). Regenerate with python -m agent.export_demo --live.' :
                           'Cached live LLM run.';
-  run.events.forEach(ev => {
-    const d = document.createElement('div');
-    d.className = 'ev ' + (ev.event === 'tool_call' ? 'call' : 'result');
-    const body = ev.event === 'tool_call' ? ev.input : ev.output;
-    d.innerHTML = `<b>${ev.event === 'tool_call' ? '→ call' : '← result'} ${ev.tool}</b>\n`;
-    d.appendChild(document.createTextNode(JSON.stringify(body, null, 1)));
-    trace.appendChild(d);
+  // Steps: each tool event appears in the trace; a memo appears when its exchange ends.
+  const steps = [{q: run.request}];
+  run.events.forEach(ev => steps.push({ev}));
+  steps.push({memo: run.memo});
+  (run.followups || []).forEach(f => {
+    steps.push({q: f.question, follow: true});
+    f.events.forEach(ev => steps.push({ev}));
+    steps.push({memo: f.memo, follow: true, q: f.question});
   });
-  const els = [...trace.children];
   let k = 0;
   (function step() {
-    if (k < els.length) { els[k++].classList.add('show'); timer = setTimeout(step, 450); }
-    else { memo.textContent = run.memo; }
+    if (k >= steps.length) return;
+    const s = steps[k++];
+    let el;
+    if (s.ev) { el = evEl(s.ev); trace.appendChild(el); }
+    else if (s.memo !== undefined) {
+      if (s.follow) memo.appendChild(note('Follow-up: ' + s.q, 'q'));
+      const pre = document.createElement('pre'); pre.className = 'memo'; pre.textContent = s.memo;
+      memo.appendChild(pre);
+    } else { el = note((s.follow ? 'Follow-up: ' : 'Request: ') + s.q, 'q'); trace.appendChild(el); }
+    if (el) requestAnimationFrame(() => el.classList.add('show'));
+    timer = setTimeout(step, s.memo !== undefined ? 1200 : 450);
   })();
 }
 

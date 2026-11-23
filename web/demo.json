@@ -66,7 +66,7 @@
             "imo": "9900001",
             "match": false,
             "hits": [],
-            "source": "sample-data (stand-in for OFAC SDN list)"
+            "source": "sample-data"
           }
         },
         {
@@ -119,6 +119,62 @@
         }
       ],
       "memo": "VESSEL: DEMO CLEAN TIDE (IMO 9900001), Bulk Carrier, built 2019 [get_vessel_profile]\nRECOMMENDATION: ACCEPT\nRISK SCORE: 13.5/100 [score_vessel]\nPREMIUM: $280,550 (0.877% of value) [price_premium]\nTOP RISK DRIVERS:\n- age: 5.8 pts [score_vessel]\n- psc: 5.7 pts [score_vessel]\n- flag: 2.0 pts [score_vessel]\nDATA GAPS:\n- Mock mode: memo is templated, not LLM-written",
+      "followups": [
+        {
+          "question": "What if it had one more detention?",
+          "events": [
+            {
+              "event": "tool_call",
+              "tool": "score_vessel",
+              "input": {
+                "vessel_type": "Bulk Carrier",
+                "year_built": 2019,
+                "flag_list": "white",
+                "iacs_member": true,
+                "inspections": 9,
+                "deficiencies": 4,
+                "detentions": 1
+              }
+            },
+            {
+              "event": "tool_result",
+              "tool": "score_vessel",
+              "output": {
+                "score": 20.2,
+                "contributions": {
+                  "age": 5.8,
+                  "psc": 12.4,
+                  "flag": 2.0,
+                  "class": 0.0
+                },
+                "credibility_z": 0.64,
+                "cohort_psc_risk": 0.35,
+                "model_version": "placeholder-0.1"
+              }
+            },
+            {
+              "event": "tool_call",
+              "tool": "price_premium",
+              "input": {
+                "score": 20.2,
+                "insured_value_usd": 32000000
+              }
+            },
+            {
+              "event": "tool_result",
+              "tool": "price_premium",
+              "output": {
+                "relativity": 0.64,
+                "expected_loss_usd": 246682,
+                "premium_usd": 320686,
+                "rate_on_value_pct": 1.002,
+                "model_version": "placeholder-0.1"
+              }
+            }
+          ],
+          "memo": "WHAT-IF:\n- detentions: 0 [get_psc_history] -> 1 [score_vessel input]\nRISK SCORE: 13.5 -> 20.2/100 [score_vessel]\nPREMIUM: $280,550 -> $320,686 [price_premium]\nNote: hypothetical only; the vessel's actual record is unchanged."
+        }
+      ],
       "mode": "mock"
     },
     {
@@ -187,7 +243,7 @@
             "imo": "9900002",
             "match": false,
             "hits": [],
-            "source": "sample-data (stand-in for OFAC SDN list)"
+            "source": "sample-data"
           }
         },
         {
@@ -240,6 +296,62 @@
         }
       ],
       "memo": "VESSEL: DEMO RUSTY STAR (IMO 9900002), Bulk Carrier, built 2003 [get_vessel_profile]\nRECOMMENDATION: REFER\nRISK SCORE: 75.1/100 [score_vessel]\nPREMIUM: $182,688 (2.03% of value) [price_premium]\nTOP RISK DRIVERS:\n- psc: 28.9 pts [score_vessel]\n- age: 19.2 pts [score_vessel]\n- class: 15.0 pts [score_vessel]\nDATA GAPS:\n- Mock mode: memo is templated, not LLM-written",
+      "followups": [
+        {
+          "question": "What if it had one fewer detention?",
+          "events": [
+            {
+              "event": "tool_call",
+              "tool": "score_vessel",
+              "input": {
+                "vessel_type": "Bulk Carrier",
+                "year_built": 2003,
+                "flag_list": "grey",
+                "iacs_member": false,
+                "inspections": 11,
+                "deficiencies": 47,
+                "detentions": 2
+              }
+            },
+            {
+              "event": "tool_result",
+              "tool": "score_vessel",
+              "output": {
+                "score": 69.3,
+                "contributions": {
+                  "age": 19.2,
+                  "psc": 23.1,
+                  "flag": 12.0,
+                  "class": 15.0
+                },
+                "credibility_z": 0.69,
+                "cohort_psc_risk": 0.35,
+                "model_version": "placeholder-0.1"
+              }
+            },
+            {
+              "event": "tool_call",
+              "tool": "price_premium",
+              "input": {
+                "score": 69.3,
+                "insured_value_usd": 9000000
+              }
+            },
+            {
+              "event": "tool_result",
+              "tool": "price_premium",
+              "output": {
+                "relativity": 1.23,
+                "expected_loss_usd": 133013,
+                "premium_usd": 172917,
+                "rate_on_value_pct": 1.921,
+                "model_version": "placeholder-0.1"
+              }
+            }
+          ],
+          "memo": "WHAT-IF:\n- detentions: 3 [get_psc_history] -> 2 [score_vessel input]\nRISK SCORE: 75.1 -> 69.3/100 [score_vessel]\nPREMIUM: $182,688 -> $172,917 [price_premium]\nNote: hypothetical only; the vessel's actual record is unchanged."
+        }
+      ],
       "mode": "mock"
     },
     {
@@ -311,11 +423,11 @@
               {
                 "name": "Demo Sanctioned Trading Co",
                 "list": "DEMO-SDN",
-                "imo": null,
+                "program": "",
                 "matched_on": "owner_name"
               }
             ],
-            "source": "sample-data (stand-in for OFAC SDN list)"
+            "source": "sample-data"
           }
         },
         {
@@ -368,6 +480,62 @@
         }
       ],
       "memo": "VESSEL: DEMO THIN DATA (IMO 9900003), Bulk Carrier, built 2012 [get_vessel_profile]\nRECOMMENDATION: DECLINE (sanctions match)\nRISK SCORE: 26.2/100 [score_vessel]\nPREMIUM: $200,604 (1.114% of value) [price_premium]\nTOP RISK DRIVERS:\n- psc: 12.5 pts [score_vessel]\n- age: 11.7 pts [score_vessel]\n- flag: 2.0 pts [score_vessel]\n- Sanctions match: Demo Sanctioned Trading Co on DEMO-SDN [check_sanctions]\nDATA GAPS:\n- Thin PSC record (1 inspections); credibility weight 0.17 so score leans on peer cohort [score_vessel]\n- Mock mode: memo is templated, not LLM-written",
+      "followups": [
+        {
+          "question": "What if it had one more detention?",
+          "events": [
+            {
+              "event": "tool_call",
+              "tool": "score_vessel",
+              "input": {
+                "vessel_type": "Bulk Carrier",
+                "year_built": 2012,
+                "flag_list": "white",
+                "iacs_member": true,
+                "inspections": 1,
+                "deficiencies": 2,
+                "detentions": 1
+              }
+            },
+            {
+              "event": "tool_result",
+              "tool": "score_vessel",
+              "output": {
+                "score": 30.8,
+                "contributions": {
+                  "age": 11.7,
+                  "psc": 17.1,
+                  "flag": 2.0,
+                  "class": 0.0
+                },
+                "credibility_z": 0.17,
+                "cohort_psc_risk": 0.35,
+                "model_version": "placeholder-0.1"
+              }
+            },
+            {
+              "event": "tool_call",
+              "tool": "price_premium",
+              "input": {
+                "score": 30.8,
+                "insured_value_usd": 18000000
+              }
+            },
+            {
+              "event": "tool_result",
+              "tool": "price_premium",
+              "output": {
+                "relativity": 0.77,
+                "expected_loss_usd": 166234,
+                "premium_usd": 216104,
+                "rate_on_value_pct": 1.201,
+                "model_version": "placeholder-0.1"
+              }
+            }
+          ],
+          "memo": "WHAT-IF:\n- detentions: 0 [get_psc_history] -> 1 [score_vessel input]\nRISK SCORE: 26.2 -> 30.8/100 [score_vessel]\nPREMIUM: $200,604 -> $216,104 [price_premium]\nNote: hypothetical only; the vessel's actual record is unchanged."
+        }
+      ],
       "mode": "mock"
     }
   ]
