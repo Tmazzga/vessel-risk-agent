@@ -23,7 +23,9 @@ DEFAULT = Path(__file__).resolve().parents[1] / "web" / "demo.json"
 
 # A number: optional $, digits with optional commas, optional decimals, optional %.
 NUM_RE = re.compile(r"(?<![\w.])\$?(\d{1,3}(?:,\d{3})+|\d+)(?:\.(\d+))?%?(?![\w])")
-CITE_RE = re.compile(r"\[[a-z_]+(?: [a-z ]+)?\]")
+# One or more tool names in brackets: [score_risk], [get_psc_history, score_risk],
+# or a tool plus a note: [score_risk input].
+CITE_RE = re.compile(r"\[[a-z_]+(?: [a-z ]+)?(?:\s*,\s*[a-z_]+(?: [a-z ]+)?)*\]")
 
 
 def _collect(obj, out: list):

@@ -83,3 +83,21 @@ def test_live_loop_runs_tools_and_keeps_history():
     s.ask("What if it had one fewer detention?", events.append)
     # second question sent the whole history: user, assistant, tool result, assistant, user
     assert client.seen[-1] == 5
+
+
+def test_checker_accepts_multi_tool_citations_and_flags_model_math():
+    events = [{"event": "tool_result", "tool": "score_risk", "output": {"total": 24.1, "age_pts": 3.5}},
+              {"event": "tool_result", "tool": "score_risk", "output": {"total": 21.1}},
+              {"event": "tool_result", "tool": "get_vessel_profile", "output": {"year_built": 2014, "age": 12}}]
+    ok = "- Vessel age: 12 years old (built 2014) adds 3.5 points [get_vessel_profile, score_risk]"
+    assert check(ok, events)["pass"]
+    bad = "- Total: **24.1/100** (previously 21.1/100), an increase of **3.0 points** [score_risk]"
+    r = check(bad, events)
+    assert [u["number"] for u in r["untraced"]] == ["3.0"]
+
+
+def test_prompt_demands_citations_on_every_numeric_line():
+    from agent.agent import SYSTEM_PROMPT
+    assert "EVERY line that contains a number" in SYSTEM_PROMPT
+    assert "Never compute anything yourself" in SYSTEM_PROMPT
+    assert "[score_risk]" in SYSTEM_PROMPT.split("Memo format:")[1]
