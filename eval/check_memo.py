@@ -58,7 +58,7 @@ def _matches(shown: float, decimals: int, values: list[float]) -> bool:
 
 def numbers_in(line: str):
     # Skip the fixed scales in "RISK SCORE: 62.3/100 (vessel 30.1/50 + owner 32.2/50)".
-    line = re.sub(r"/(100|50)\b", "", line)
+    line = re.sub(r"/\s*(100|50)\b", "", line)
     for m in NUM_RE.finditer(line):
         whole, dec = m.group(1).replace(",", ""), m.group(2)
         yield m.group(0), float(f"{whole}.{dec}" if dec else whole), len(dec or "")
