@@ -1,5 +1,5 @@
 {
-  "_note": "FICTIONAL demo vessels. Names and IMO numbers are invented placeholders, not real ships. Replace with real data pulled by the pipeline.",
+  "_note": "FICTIONAL demo vessels and owners. Names, flags and IMO numbers are invented placeholders, not real ships or companies. Replace with real data pulled by the pipeline.",
   "vessels": {
     "9900001": {
       "name": "DEMO CLEAN TIDE",
@@ -57,6 +57,120 @@
         "detentions": 0,
         "last_inspection": "2025-11-20"
       }
+    },
+    "9900004": {
+      "name": "DEMO HARBOR BOX",
+      "type": "Container Ship",
+      "year_built": 2016,
+      "flag": "Demo White Flag A",
+      "flag_list": "white",
+      "class_society": "LR",
+      "iacs_member": true,
+      "class_status": "in_class",
+      "gross_tonnage": 52000,
+      "owner": "Demo Box Lines AS",
+      "insured_value_usd": 60000000,
+      "psc": {
+        "inspections": 14,
+        "deficiencies": 9,
+        "detentions": 0,
+        "last_inspection": "2026-08-19"
+      }
+    },
+    "9900005": {
+      "name": "DEMO GULF CRUDE",
+      "type": "Tanker",
+      "year_built": 2008,
+      "flag": "Demo White Flag B",
+      "flag_list": "white",
+      "class_society": "ABS",
+      "iacs_member": true,
+      "class_status": "overdue_survey",
+      "gross_tonnage": 61000,
+      "owner": "Demo Gulf Tankers Inc",
+      "insured_value_usd": 28000000,
+      "psc": {
+        "inspections": 12,
+        "deficiencies": 22,
+        "detentions": 1,
+        "last_inspection": "2026-06-02"
+      }
+    },
+    "9900006": {
+      "name": "DEMO OLD COASTER",
+      "type": "General Cargo",
+      "year_built": 1998,
+      "flag": "Demo Black Flag",
+      "flag_list": "black",
+      "class_society": "Demo Local Register",
+      "iacs_member": false,
+      "class_status": "conditions",
+      "gross_tonnage": 4200,
+      "owner": "Demo Coastal Trading Co",
+      "insured_value_usd": 3000000,
+      "psc": {
+        "inspections": 6,
+        "deficiencies": 31,
+        "detentions": 2,
+        "last_inspection": "2026-01-27"
+      }
+    },
+    "9900007": {
+      "name": "DEMO AUTO EXPRESS",
+      "type": "Ro-Ro",
+      "year_built": 2011,
+      "flag": "Demo White Flag A",
+      "flag_list": "white",
+      "class_society": "DNV",
+      "iacs_member": true,
+      "class_status": "in_class",
+      "gross_tonnage": 58000,
+      "owner": "Demo Auto Logistics Ltd",
+      "insured_value_usd": 45000000,
+      "psc": {
+        "inspections": 10,
+        "deficiencies": 12,
+        "detentions": 0,
+        "last_inspection": "2026-09-10"
+      }
+    },
+    "9900008": {
+      "name": "DEMO LAPSED CLASS",
+      "type": "Bulk Carrier",
+      "year_built": 2000,
+      "flag": "Demo Grey Flag",
+      "flag_list": "grey",
+      "class_society": "BV",
+      "iacs_member": true,
+      "class_status": "suspended",
+      "gross_tonnage": 27000,
+      "owner": "Demo Opaque Holdings SA",
+      "insured_value_usd": 7000000,
+      "psc": {
+        "inspections": 8,
+        "deficiencies": 30,
+        "detentions": 1,
+        "last_inspection": "2026-04-15"
+      }
+    },
+    "9900009": {
+      "name": "DEMO NAME GAME",
+      "type": "Tanker",
+      "year_built": 2014,
+      "flag": "Demo White Flag B",
+      "flag_list": "white",
+      "class_society": "ClassNK",
+      "iacs_member": true,
+      "class_status": "in_class",
+      "gross_tonnage": 42000,
+      "owner": "Demo Sanctioned Trading Company Ltd.",
+      "insured_value_usd": 22000000,
+      "psc": {
+        "inspections": 7,
+        "deficiencies": 6,
+        "detentions": 0,
+        "last_inspection": "2026-07-08"
+      }
     }
   },
   "owners": {
@@ -72,6 +186,34 @@
       "inspections": 18,
       "deficiencies": 71,
       "detentions": 4,
+      "period": "last 36 months"
+    },
+    "Demo Box Lines AS": {
+      "fleet_size": 40,
+      "inspections": 210,
+      "deficiencies": 260,
+      "detentions": 3,
+      "period": "last 36 months"
+    },
+    "Demo Gulf Tankers Inc": {
+      "fleet_size": 9,
+      "inspections": 48,
+      "deficiencies": 140,
+      "detentions": 3,
+      "period": "last 36 months"
+    },
+    "Demo Coastal Trading Co": {
+      "fleet_size": 2,
+      "inspections": 7,
+      "deficiencies": 40,
+      "detentions": 2,
+      "period": "last 36 months"
+    },
+    "Demo Auto Logistics Ltd": {
+      "fleet_size": 22,
+      "inspections": 120,
+      "deficiencies": 190,
+      "detentions": 2,
       "period": "last 36 months"
     }
   },

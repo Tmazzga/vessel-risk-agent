@@ -1,7 +1,6 @@
 {
   "_about": "Single source of truth for the risk score. Read by agent/tools/scoring.py (agent) and web/scoring.js (web form). Change numbers here, never in code. All values are PROTOTYPE ASSUMPTIONS until calibrated on real data (Yuvraj).",
-  "model_version": "prototype-0.2",
-
+  "model_version": "prototype-0.3",
   "vessel": {
     "max": 50,
     "age": {
@@ -23,17 +22,32 @@
     "flag": {
       "max": 7,
       "_rule": "Paris MOU white/grey/black list. Unknown scored like grey.",
-      "points": {"white": 0, "grey": 4, "black": 7, "unknown": 4}
+      "points": {
+        "white": 0,
+        "grey": 4,
+        "black": 7,
+        "unknown": 4
+      }
     },
     "class_society": {
       "max": 7,
       "_rule": "IACS member society = 0. Non-IACS or unknown = max.",
-      "points": {"iacs": 0, "non_iacs": 7, "unknown": 7}
+      "points": {
+        "iacs": 0,
+        "non_iacs": 7,
+        "unknown": 7
+      }
     },
     "class_status": {
       "max": 6,
       "_rule": "Suspended or withdrawn class forces DECLINE: hull cover requires class to be maintained.",
-      "points": {"in_class": 0, "conditions": 3, "overdue_survey": 5, "suspended": 6, "unknown": 3},
+      "points": {
+        "in_class": 0,
+        "conditions": 3,
+        "overdue_survey": 5,
+        "suspended": 6,
+        "unknown": 3
+      },
       "labels": {
         "in_class": "In class, no open items",
         "conditions": "Open conditions of class",
@@ -44,7 +58,7 @@
     },
     "vessel_type": {
       "max": 5,
-      "_rule": "Relative base risk by ship type. Prototype judgment, to be replaced by casualty-rate data.",
+      "_rule": "Relative base risk by ship type. Prototype judgment, to be replaced by casualty-rate data. Common names are mapped through aliases (case-insensitive); anything unrecognized scores as Other and is flagged.",
       "points": {
         "Container Ship": 2,
         "Tanker": 2,
@@ -52,10 +66,43 @@
         "General Cargo": 4,
         "Ro-Ro": 5,
         "Other": 3
+      },
+      "aliases": {
+        "container ship": "Container Ship",
+        "container": "Container Ship",
+        "containership": "Container Ship",
+        "container vessel": "Container Ship",
+        "tanker": "Tanker",
+        "oil tanker": "Tanker",
+        "crude oil tanker": "Tanker",
+        "product tanker": "Tanker",
+        "chemical tanker": "Tanker",
+        "oil/chemical tanker": "Tanker",
+        "lng tanker": "Tanker",
+        "lpg tanker": "Tanker",
+        "gas carrier": "Tanker",
+        "lng carrier": "Tanker",
+        "lpg carrier": "Tanker",
+        "bulk carrier": "Bulk Carrier",
+        "bulker": "Bulk Carrier",
+        "bulk": "Bulk Carrier",
+        "ore carrier": "Bulk Carrier",
+        "general cargo": "General Cargo",
+        "general cargo ship": "General Cargo",
+        "multi-purpose": "General Cargo",
+        "multipurpose": "General Cargo",
+        "cargo ship": "General Cargo",
+        "ro-ro": "Ro-Ro",
+        "roro": "Ro-Ro",
+        "ro-ro cargo": "Ro-Ro",
+        "vehicles carrier": "Ro-Ro",
+        "vehicle carrier": "Ro-Ro",
+        "car carrier": "Ro-Ro",
+        "pctc": "Ro-Ro",
+        "other": "Other"
       }
     }
   },
-
   "owner": {
     "max": 50,
     "_rule": "Fleet-wide PSC record of the registered owner (last 36 months), blended with an industry baseline by Z = n / (n + k), n = fleet inspections.",
@@ -71,24 +118,66 @@
       "baseline_per_inspection": 2.5
     }
   },
-
   "thin_data_z": 0.5,
-
   "recommendation": {
     "_rule": "Bands on the total score (0-100). Overrides always win.",
     "bands": [
-      {"below": 30, "label": "ACCEPT"},
-      {"below": 50, "label": "ACCEPT WITH CONDITIONS"},
-      {"below": 70, "label": "REFER"},
-      {"below": 1000, "label": "DECLINE"}
+      {
+        "below": 30,
+        "label": "ACCEPT"
+      },
+      {
+        "below": 50,
+        "label": "ACCEPT WITH CONDITIONS"
+      },
+      {
+        "below": 70,
+        "label": "REFER"
+      },
+      {
+        "below": 1000,
+        "label": "DECLINE"
+      }
     ]
   },
-
   "pricing": {
     "_rule": "premium = base_rate x insured value x relativity x (1 + loading); relativity = intercept + slope x total score, so score 50 = 1.0x.",
     "base_rate": 0.012,
-    "loading": 0.30,
+    "loading": 0.3,
     "relativity_intercept": 0.4,
     "relativity_slope": 0.012
+  },
+  "levers": {
+    "_rule": "Single actionable changes tested by find_risk_levers. Each is applied alone and the score is recomputed.",
+    "options": [
+      {
+        "field": "class_status",
+        "to": "in_class",
+        "unless": [
+          "in_class"
+        ],
+        "label": "Clear open class items (conditions or overdue survey)"
+      },
+      {
+        "field": "flag_list",
+        "to": "white",
+        "unless": [
+          "white"
+        ],
+        "label": "Reflag to a Paris MOU white-list flag"
+      },
+      {
+        "field": "iacs_member",
+        "to": true,
+        "unless": [
+          true
+        ],
+        "label": "Move to an IACS member class society"
+      }
+    ]
+  },
+  "limits": {
+    "_rule": "Inputs outside these are rejected as impossible.",
+    "min_year_built": 1900
   }
 }

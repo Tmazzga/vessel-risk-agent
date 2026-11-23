@@ -27,13 +27,16 @@ Given a vessel, gather evidence with the tools, then write a short underwriting 
 
 Process: get_vessel_profile, get_psc_history, check_sanctions (vessel IMO + owner name),
 get_owner_record (owner name), then score_risk with everything you found, then
-price_premium with the TOTAL score.
+price_premium with the TOTAL score. For ACCEPT WITH CONDITIONS or REFER, also call
+find_risk_levers with the same inputs and turn its levers into conditions.
 
 Rules:
 - The risk score has two halves: vessel (0-50) and owner (0-50), added to a total out of 100. Report all three exactly as score_risk returns them. Never add, estimate, round differently, or invent figures.
 - Use the recommendation score_risk returns. If it lists overrides (sanctions match, suspended class), state them; they force DECLINE.
 - Do not call price_premium when the recommendation is DECLINE; write "not quoted".
 - Cite the tool each figure came from in square brackets, e.g. [get_psc_history].
+- Pass check_sanctions "match" as sanctions_match and "possible_match" as sanctions_possible. A possible match must be confirmed by a person; say so.
+- If score_risk returns "error", the inputs are impossible (e.g. more detentions than inspections). Do not score by hand: recommend REFER and say which data must be checked.
 - Pass null to score_risk for anything unknown, and list everything in its "missing" field under DATA GAPS. If insured value is missing, do not call price_premium; say the vessel could not be priced.
 - If a tool returns "error" or the vessel is not found, do not guess. Recommend REFER and explain what is missing.
 - Mention any notes score_risk returns about thin data.
@@ -45,6 +48,7 @@ RISK SCORE: <total>/100 (vessel <v>/50 + owner <o>/50)
 PREMIUM: <premium>
 TOP RISK DRIVERS: 2-3 bullets
 OVERRIDES: bullets, or none
+CONDITIONS: for ACCEPT WITH CONDITIONS or REFER, the levers from find_risk_levers with their score reductions; otherwise none
 DATA GAPS: bullets
 """
 
@@ -141,7 +145,8 @@ class MockSession:
                 "psc_inspections": psc["inspections"], "psc_deficiencies": psc["deficiencies"],
                 "psc_detentions": psc["detentions"],
                 "owner_inspections": owner["inspections"], "owner_deficiencies": owner["deficiencies"],
-                "owner_detentions": owner["detentions"], "sanctions_match": sanc["match"]}
+                "owner_detentions": owner["detentions"], "sanctions_match": sanc["match"],
+                "sanctions_possible": sanc.get("possible_match", False)}
 
     def _assess(self, imo, on_event):
         call = lambda n, a: self._call(n, a, on_event)
@@ -155,7 +160,11 @@ class MockSession:
         inputs = self._score_inputs(prof, psc, owner, sanc)
         score = call("score_risk", inputs)
         if "error" in score:
-            return f"RECOMMENDATION: REFER\nCould not score IMO {imo}: {score['error']} [score_risk]"
+            return (f"RECOMMENDATION: REFER\nCould not score IMO {imo}: the records are inconsistent "
+                    f"({'; '.join(score['errors'])}) [score_risk]\nCheck the source data before quoting.")
+        levers = None
+        if score["recommendation"] in ("ACCEPT WITH CONDITIONS", "REFER"):
+            levers = call("find_risk_levers", inputs)
         price = None
         if prof.get("insured_value_usd") and score["recommendation"] != "DECLINE":
             price = call("price_premium", {"score": score["total"],
@@ -186,6 +195,11 @@ class MockSession:
             *([f"- {o} [score_risk]" for o in score["overrides"]] or ["- none"]),
             *([f"- Sanctions hit: {sanc['hits'][0]['name']} on {sanc['hits'][0]['list']} [check_sanctions]"]
               if sanc["match"] else []),
+            *([f"- Possible sanctions hit: {sanc['possible_hits'][0]['name']} on {sanc['possible_hits'][0]['list']}, "
+               f"needs a person to confirm [check_sanctions]"] if sanc.get("possible_match") else []),
+            "CONDITIONS:",
+            *([f"- {l['change']}: total {score['total']} -> {l['new_total']} [find_risk_levers]"
+               for l in levers["levers"]] if levers and levers.get("levers") else ["- none"]),
             "DATA GAPS:",
             *gaps,
         ])

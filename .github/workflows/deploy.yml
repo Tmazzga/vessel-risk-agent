@@ -1,14 +1,18 @@
-# Deploys web/ to GitHub Pages.
-# Pages needs a public repo on GitHub Free. Once the repo is public:
-#   1. Settings -> Pages -> Source: GitHub Actions
-#   2. Uncomment the push trigger below.
+# Publishes web/ (scoring form + agent replay) to GitHub Pages:
+#   https://tmazzga.github.io/vessel-risk-agent/
+#
+# One-time setup (repo owner):
+#   1. Settings -> Pages -> Build and deployment -> Source: GitHub Actions
+#   2. A private repo needs GitHub Pro (free with the GitHub Student Developer Pack);
+#      otherwise make the repo public first. The published site is public either way.
+# After that, every merge to main that touches web/ redeploys automatically.
 name: Deploy demo to Pages
 
 on:
   workflow_dispatch:
-  # push:
-  #   branches: [main]
-  #   paths: ["web/**"]
+  push:
+    branches: [main]
+    paths: ["web/**", ".github/workflows/deploy.yml"]
 
 permissions:
   contents: read

@@ -45,3 +45,9 @@ def test_tool_errors_are_reported_not_raised():
 
 def test_mock_agent_declines_sanctioned_vessel():
     assert "DECLINE" in run_mock("Assess IMO 9900003", lambda e: None)
+
+
+def test_owner_names_match_loosely_but_sanctions_only_flag_possible():
+    assert run_tool("get_owner_record", {"owner_name": "DEMO OPAQUE HOLDINGS S.A."})["found"]
+    r = run_tool("check_sanctions", {"imo": "1", "owner_name": "Demo Sanctioned Trading Company Ltd."})
+    assert r["match"] is False and r["possible_match"] is True

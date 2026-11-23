@@ -4,6 +4,8 @@ An LLM agent that assesses hull & machinery insurance risk for commercial vessel
 
 PRV 201 – Frontiers of Technology: AI · Stevens Institute of Technology · Track A (Build)
 
+**Live demo:** https://tmazzga.github.io/vessel-risk-agent/ (scoring form + agent replay; goes live once GitHub Pages is turned on, see `.github/workflows/deploy.yml`)
+
 > **Status:** prototype. Demo data is fictional, and scoring weights are prototype assumptions pending calibration (see `docs/scoring-model.md`).
 
 ## How it works
@@ -46,6 +48,10 @@ python -m http.server -d web 8000
 python -m pipeline.fetch_ofac        # sanctions list -> data/processed/sanctions.csv
 python -m pipeline.validate_vessels  # check data/processed/vessels.csv and owners.csv
 
+# Does the score predict incidents? Is the flag factor fair? (HTML reports in eval/reports/)
+python -m eval.validate_scores --outcomes data/processed/outcomes.csv   # or --demo
+python -m eval.fairness_flags                                           # or --demo
+
 # Check memos: every number must trace to a tool output
 python -m eval.check_memo                 # checks web/demo.json
 
@@ -53,7 +59,7 @@ python -m eval.check_memo                 # checks web/demo.json
 pytest
 ```
 
-Demo vessels (fictional): `9900001` clean, `9900002` high-risk, `9900003` thin data + sanctions hit.
+Demo vessels (fictional, `9900001`–`9900009`): clean, high-risk, thin data + sanctions hit, container ship, tanker with an overdue survey, old general cargo ship, ro-ro, suspended class, and a near-miss sanctions name.
 
 ## Repo layout
 
@@ -67,6 +73,8 @@ Demo vessels (fictional): `9900001` clean, `9900002` high-risk, `9900003` thin d
 | `docs/tool-spec.md` | Tool contracts + open modeling questions | All |
 | `eval/memo_rubric.md` | Memo grading rubric + governance questions | Robert |
 | `eval/check_memo.py` | Automated check for untraced numbers and missing citations | Robert |
+| `eval/fairness_flags.py` | Flag fairness check with HTML report | Robert |
+| `eval/validate_scores.py` | Do scores predict incidents? HTML report | Yuvraj |
 | `pipeline/` | OFAC download, vessel CSV validator | Ty |
 | `web/` | Scoring form + agent replay (GitHub Pages) | Ty |
 | `tests/` | Tool contract tests | All |
