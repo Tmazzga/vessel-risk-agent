@@ -337,7 +337,9 @@
           "memo": "WHAT-IF:\n- detentions: 0 [get_psc_history] -> 1 [score_risk input]\nVESSEL SCORE: 5.8 -> 8.8/50 [score_risk]\nRISK SCORE: 14.9 -> 17.9/100 [score_risk]\nRECOMMENDATION: ACCEPT -> ACCEPT [score_risk]\nPREMIUM: $288,937 -> $306,908 [price_premium]\nNote: hypothetical only; the vessel's actual record is unchanged."
         }
       ],
-      "mode": "mock"
+      "mode": "mock",
+      "provider": "mock",
+      "model": null
     },
     {
       "imo": "9900002",
@@ -734,7 +736,9 @@
           "memo": "WHAT-IF:\n- detentions: 3 [get_psc_history] -> 2 [score_risk input]\nVESSEL SCORE: 36.8 -> 34.9/50 [score_risk]\nRISK SCORE: 65.1 -> 63.2/100 [score_risk]\nRECOMMENDATION: REFER -> REFER [score_risk]\nPREMIUM: $165,840 -> $162,639 [price_premium]\nNote: hypothetical only; the vessel's actual record is unchanged."
         }
       ],
-      "mode": "mock"
+      "mode": "mock",
+      "provider": "mock",
+      "model": null
     },
     {
       "imo": "9900003",
@@ -1059,7 +1063,9 @@
           "memo": "WHAT-IF:\n- detentions: 0 [get_psc_history] -> 1 [score_risk input]\nVESSEL SCORE: 11.5 -> 13.3/50 [score_risk]\nRISK SCORE: 24.8 -> 26.6/100 [score_risk]\nRECOMMENDATION: DECLINE -> DECLINE [score_risk]\nNote: hypothetical only; the vessel's actual record is unchanged."
         }
       ],
-      "mode": "mock"
+      "mode": "mock",
+      "provider": "mock",
+      "model": null
     },
     {
       "imo": "9900004",
@@ -1398,7 +1404,9 @@
           "memo": "WHAT-IF:\n- detentions: 0 [get_psc_history] -> 1 [score_risk input]\nVESSEL SCORE: 6.0 -> 8.3/50 [score_risk]\nRISK SCORE: 13.1 -> 15.4/100 [score_risk]\nRECOMMENDATION: ACCEPT -> ACCEPT [score_risk]\nPREMIUM: $521,539 -> $547,373 [price_premium]\nNote: hypothetical only; the vessel's actual record is unchanged."
         }
       ],
-      "mode": "mock"
+      "mode": "mock",
+      "provider": "mock",
+      "model": null
     },
     {
       "imo": "9900005",
@@ -1775,7 +1783,9 @@
           "memo": "WHAT-IF:\n- detentions: 1 [get_psc_history] -> 0 [score_risk input]\nVESSEL SCORE: 18.3 -> 15.8/50 [score_risk]\nRISK SCORE: 37.7 -> 35.2/100 [score_risk]\nRECOMMENDATION: ACCEPT WITH CONDITIONS -> ACCEPT WITH CONDITIONS [score_risk]\nPREMIUM: $372,328 -> $359,224 [price_premium]\nNote: hypothetical only; the vessel's actual record is unchanged."
         }
       ],
-      "mode": "mock"
+      "mode": "mock",
+      "provider": "mock",
+      "model": null
     },
     {
       "imo": "9900006",
@@ -2172,7 +2182,9 @@
           "memo": "WHAT-IF:\n- detentions: 2 [get_psc_history] -> 1 [score_risk input]\nVESSEL SCORE: 40.9 -> 39.0/50 [score_risk]\nRISK SCORE: 63.5 -> 61.6/100 [score_risk]\nRECOMMENDATION: REFER -> REFER [score_risk]\nPREMIUM: $54,382 -> $53,315 [price_premium]\nNote: hypothetical only; the vessel's actual record is unchanged."
         }
       ],
-      "mode": "mock"
+      "mode": "mock",
+      "provider": "mock",
+      "model": null
     },
     {
       "imo": "9900007",
@@ -2511,7 +2523,9 @@
           "memo": "WHAT-IF:\n- detentions: 0 [get_psc_history] -> 1 [score_risk input]\nVESSEL SCORE: 12.1 -> 14.9/50 [score_risk]\nRISK SCORE: 20.7 -> 23.5/100 [score_risk]\nRECOMMENDATION: ACCEPT -> ACCEPT [score_risk]\nPREMIUM: $455,177 -> $478,764 [price_premium]\nNote: hypothetical only; the vessel's actual record is unchanged."
         }
       ],
-      "mode": "mock"
+      "mode": "mock",
+      "provider": "mock",
+      "model": null
     },
     {
       "imo": "9900008",
@@ -2820,7 +2834,9 @@
           "memo": "WHAT-IF:\n- detentions: 1 [get_psc_history] -> 0 [score_risk input]\nVESSEL SCORE: 29.7 -> 26.5/50 [score_risk]\nRISK SCORE: 58.0 -> 54.8/100 [score_risk]\nRECOMMENDATION: DECLINE -> DECLINE [score_risk]\nNote: hypothetical only; the vessel's actual record is unchanged."
         }
       ],
-      "mode": "mock"
+      "mode": "mock",
+      "provider": "mock",
+      "model": null
     },
     {
       "imo": "9900009",
@@ -3210,7 +3226,9 @@
           "memo": "WHAT-IF:\n- detentions: 0 [get_psc_history] -> 1 [score_risk input]\nVESSEL SCORE: 7.8 -> 11.3/50 [score_risk]\nRISK SCORE: 21.1 -> 24.6/100 [score_risk]\nRECOMMENDATION: REFER -> REFER [score_risk]\nPREMIUM: $224,178 -> $238,593 [price_premium]\nNote: hypothetical only; the vessel's actual record is unchanged."
         }
       ],
-      "mode": "mock"
+      "mode": "mock",
+      "provider": "mock",
+      "model": null
     }
   ]
 }

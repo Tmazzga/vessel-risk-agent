@@ -236,7 +236,7 @@ function show(i) {
   trace.innerHTML = ''; memo.innerHTML = '';
   document.getElementById('mode').textContent =
     run.mode === 'mock' ? 'Cached mock run (scripted, no LLM). Regenerate with python -m agent.export_demo --live.' :
-                          'Cached live LLM run.';
+                          `Cached live LLM run${run.model ? ` (${run.provider}, ${run.model})` : ''}.`;
   // Steps: each tool event appears in the trace; a memo appears when its exchange ends.
   const steps = [{q: run.request}];
   run.events.forEach(ev => steps.push({ev}));
