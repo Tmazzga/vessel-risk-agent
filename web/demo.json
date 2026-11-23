@@ -56,8 +56,8 @@
           "event": "tool_call",
           "tool": "check_sanctions",
           "input": {
-            "imo": "9900001",
-            "owner_name": "Demo Clean Shipping Ltd"
+            "owner_name": "Demo Clean Shipping Ltd",
+            "imo": "9900001"
           }
         },
         {
@@ -97,19 +97,19 @@
           "event": "tool_call",
           "tool": "score_risk",
           "input": {
-            "vessel_type": "Bulk Carrier",
-            "year_built": 2019,
-            "flag_list": "white",
-            "iacs_member": true,
-            "class_status": "in_class",
             "psc_inspections": 9,
-            "psc_deficiencies": 4,
-            "psc_detentions": 0,
-            "owner_inspections": 62,
+            "class_status": "in_class",
+            "flag_list": "white",
             "owner_deficiencies": 98,
+            "sanctions_possible": false,
+            "psc_detentions": 0,
+            "psc_deficiencies": 4,
+            "vessel_type": "Bulk Carrier",
+            "iacs_member": true,
             "owner_detentions": 1,
-            "sanctions_match": false,
-            "sanctions_possible": false
+            "owner_inspections": 62,
+            "year_built": 2019,
+            "sanctions_match": false
           }
         },
         {
@@ -195,23 +195,23 @@
           "event": "tool_call",
           "tool": "price_premium",
           "input": {
-            "score": 14.9,
-            "insured_value_usd": 32000000
+            "insured_value_usd": 32000000,
+            "score": 15.5
           }
         },
         {
           "event": "tool_result",
           "tool": "price_premium",
           "output": {
-            "relativity": 0.58,
-            "expected_loss_usd": 222259,
-            "premium_usd": 288937,
-            "rate_on_value_pct": 0.903,
+            "relativity": 0.59,
+            "expected_loss_usd": 225024,
+            "premium_usd": 292531,
+            "rate_on_value_pct": 0.914,
             "model_version": "prototype-0.3"
           }
         }
       ],
-      "memo": "VESSEL: DEMO CLEAN TIDE (IMO 9900001), Bulk Carrier, built 2019 [get_vessel_profile]\nOWNER: Demo Clean Shipping Ltd [get_vessel_profile]\nRECOMMENDATION: ACCEPT [score_risk]\nRISK SCORE: 14.9/100 (vessel 5.8/50 + owner 9.1/50) [score_risk]\nPREMIUM: $288,937 (0.903% of value) [price_premium]\nTOP RISK DRIVERS:\n- Owner fleet detentions: 4.6 of 35 pts, 1 detentions in 62 fleet inspections [score_risk]\n- Owner fleet deficiencies: 4.5 of 15 pts, 98 deficiencies in 62 fleet inspections [score_risk]\n- Vessel type: 3 of 5 pts, Bulk Carrier [score_risk]\nOVERRIDES:\n- none\nCONDITIONS:\n- none\nDATA GAPS:\n- Mock mode: memo is templated, not LLM-written",
+      "memo": "RECOMMENDATION: ACCEPT [score_risk]\nRISK SCORE: 14.9/100 (vessel 5.8/50 + owner 9.1/50) [score_risk]\nPREMIUM: $292,531 [price_premium]\nTOP RISK DRIVERS: \n- Bulk Carrier vessel type contributes 3.0 points to the vessel score [score_risk]\n- Owner fleet detentions contribute 4.6 points (1 detention in 62 inspections) [score_risk, get_owner_record]\n- Owner fleet deficiencies contribute 4.5 points (98 deficiencies in 62 inspections) [score_risk, get_owner_record]\nOVERRIDES: none [score_risk]\nCONDITIONS: none [score_risk]\nDATA GAPS: none [score_risk]",
       "followups": [
         {
           "question": "What if it had one more detention?",
@@ -220,30 +220,30 @@
               "event": "tool_call",
               "tool": "score_risk",
               "input": {
-                "vessel_type": "Bulk Carrier",
-                "year_built": 2019,
-                "flag_list": "white",
-                "iacs_member": true,
                 "class_status": "in_class",
-                "psc_inspections": 9,
+                "owner_detentions": 2,
                 "psc_deficiencies": 4,
-                "psc_detentions": 1,
-                "owner_inspections": 62,
+                "vessel_type": "Bulk Carrier",
                 "owner_deficiencies": 98,
-                "owner_detentions": 1,
-                "sanctions_match": false,
-                "sanctions_possible": false
+                "flag_list": "white",
+                "sanctions_possible": false,
+                "psc_detentions": 0,
+                "iacs_member": true,
+                "psc_inspections": 9,
+                "year_built": 2019,
+                "owner_inspections": 62,
+                "sanctions_match": false
               }
             },
             {
               "event": "tool_result",
               "tool": "score_risk",
               "output": {
-                "total": 17.9,
-                "vessel_score": 8.8,
-                "owner_score": 9.1,
+                "total": 17.7,
+                "vessel_score": 5.8,
+                "owner_score": 11.9,
                 "vessel": {
-                  "score": 8.8,
+                  "score": 5.8,
                   "max": 50,
                   "factors": {
                     "age": {
@@ -254,9 +254,9 @@
                     },
                     "psc": {
                       "label": "Vessel PSC record",
-                      "points": 4.8,
+                      "points": 1.8,
                       "max": 15,
-                      "detail": "9 inspections, 4 deficiencies, 1 detentions; credibility 0.64"
+                      "detail": "9 inspections, 4 deficiencies, 0 detentions; credibility 0.64"
                     },
                     "flag": {
                       "label": "Flag",
@@ -288,14 +288,14 @@
                   "notes": []
                 },
                 "owner": {
-                  "score": 9.1,
+                  "score": 11.9,
                   "max": 50,
                   "factors": {
                     "fleet_detentions": {
                       "label": "Owner fleet detentions",
-                      "points": 4.6,
+                      "points": 7.4,
                       "max": 35,
-                      "detail": "1 detentions in 62 fleet inspections"
+                      "detail": "2 detentions in 62 fleet inspections"
                     },
                     "fleet_deficiencies": {
                       "label": "Owner fleet deficiencies",
@@ -318,7 +318,7 @@
               "event": "tool_call",
               "tool": "price_premium",
               "input": {
-                "score": 17.9,
+                "score": 19.5,
                 "insured_value_usd": 32000000
               }
             },
@@ -326,20 +326,20 @@
               "event": "tool_result",
               "tool": "price_premium",
               "output": {
-                "relativity": 0.61,
-                "expected_loss_usd": 236083,
-                "premium_usd": 306908,
-                "rate_on_value_pct": 0.959,
+                "relativity": 0.63,
+                "expected_loss_usd": 243456,
+                "premium_usd": 316493,
+                "rate_on_value_pct": 0.989,
                 "model_version": "prototype-0.3"
               }
             }
           ],
-          "memo": "WHAT-IF:\n- detentions: 0 [get_psc_history] -> 1 [score_risk input]\nVESSEL SCORE: 5.8 -> 8.8/50 [score_risk]\nRISK SCORE: 14.9 -> 17.9/100 [score_risk]\nRECOMMENDATION: ACCEPT -> ACCEPT [score_risk]\nPREMIUM: $288,937 -> $306,908 [price_premium]\nNote: hypothetical only; the vessel's actual record is unchanged."
+          "memo": "RECOMMENDATION: ACCEPT [score_risk]\nRISK SCORE: 14.9 -> 17.7 (vessel 5.8/50 + owner 9.1 -> 11.9/50) [score_risk]\nPREMIUM: $292,531 -> $316,493 [price_premium]\nTOP RISK DRIVERS: \n- Bulk Carrier vessel type contributes 3.0 points to the vessel score [score_risk]\n- Owner fleet detentions: 1 -> 2 detentions in 62 fleet inspections, increasing points from 4.6 to 7.4 [score_risk, get_owner_record]\n- Owner fleet deficiencies contribute 4.5 points (98 deficiencies in 62 inspections) [score_risk, get_owner_record]\nOVERRIDES: none [score_risk]\nCONDITIONS: none [score_risk]\nDATA GAPS: none [score_risk]"
         }
       ],
-      "mode": "mock",
-      "provider": "mock",
-      "model": null
+      "mode": "live",
+      "provider": "gemini",
+      "model": "gemini-3.5-flash-lite"
     },
     {
       "imo": "9900002",
@@ -397,8 +397,8 @@
           "event": "tool_call",
           "tool": "check_sanctions",
           "input": {
-            "imo": "9900002",
-            "owner_name": "Demo Opaque Holdings SA"
+            "owner_name": "Demo Opaque Holdings SA",
+            "imo": "9900002"
           }
         },
         {
@@ -438,19 +438,19 @@
           "event": "tool_call",
           "tool": "score_risk",
           "input": {
-            "vessel_type": "Bulk Carrier",
-            "year_built": 2003,
             "flag_list": "grey",
-            "iacs_member": false,
-            "class_status": "conditions",
-            "psc_inspections": 11,
-            "psc_deficiencies": 47,
-            "psc_detentions": 3,
-            "owner_inspections": 18,
             "owner_deficiencies": 71,
-            "owner_detentions": 4,
             "sanctions_match": false,
-            "sanctions_possible": false
+            "psc_deficiencies": 47,
+            "iacs_member": false,
+            "year_built": 2003,
+            "owner_detentions": 4,
+            "psc_inspections": 11,
+            "psc_detentions": 3,
+            "class_status": "conditions",
+            "sanctions_possible": false,
+            "owner_inspections": 18,
+            "vessel_type": "Bulk Carrier"
           }
         },
         {
@@ -536,21 +536,40 @@
         },
         {
           "event": "tool_call",
+          "tool": "price_premium",
+          "input": {
+            "insured_value_usd": 9000000,
+            "score": 85
+          }
+        },
+        {
+          "event": "tool_result",
+          "tool": "price_premium",
+          "output": {
+            "relativity": 1.42,
+            "expected_loss_usd": 153360,
+            "premium_usd": 199368,
+            "rate_on_value_pct": 2.215,
+            "model_version": "prototype-0.3"
+          }
+        },
+        {
+          "event": "tool_call",
           "tool": "find_risk_levers",
           "input": {
-            "vessel_type": "Bulk Carrier",
-            "year_built": 2003,
-            "flag_list": "grey",
-            "iacs_member": false,
-            "class_status": "conditions",
-            "psc_inspections": 11,
+            "owner_deficiencies": 71,
+            "sanctions_match": false,
             "psc_deficiencies": 47,
             "psc_detentions": 3,
             "owner_inspections": 18,
-            "owner_deficiencies": 71,
+            "vessel_type": "Bulk Carrier",
+            "sanctions_possible": false,
+            "flag_list": "grey",
+            "class_status": "conditions",
+            "year_built": 2003,
+            "psc_inspections": 11,
             "owner_detentions": 4,
-            "sanctions_match": false,
-            "sanctions_possible": false
+            "iacs_member": false
           }
         },
         {
@@ -587,28 +606,9 @@
             ],
             "model_version": "prototype-0.3"
           }
-        },
-        {
-          "event": "tool_call",
-          "tool": "price_premium",
-          "input": {
-            "score": 65.1,
-            "insured_value_usd": 9000000
-          }
-        },
-        {
-          "event": "tool_result",
-          "tool": "price_premium",
-          "output": {
-            "relativity": 1.18,
-            "expected_loss_usd": 127570,
-            "premium_usd": 165840,
-            "rate_on_value_pct": 1.843,
-            "model_version": "prototype-0.3"
-          }
         }
       ],
-      "memo": "VESSEL: DEMO RUSTY STAR (IMO 9900002), Bulk Carrier, built 2003 [get_vessel_profile]\nOWNER: Demo Opaque Holdings SA [get_vessel_profile]\nRECOMMENDATION: REFER [score_risk]\nRISK SCORE: 65.1/100 (vessel 36.8/50 + owner 28.3/50) [score_risk]\nPREMIUM: $165,840 (1.843% of value) [price_premium]\nTOP RISK DRIVERS:\n- Owner fleet detentions: 20.3 of 35 pts, 4 detentions in 18 fleet inspections [score_risk]\n- Vessel PSC record: 10.8 of 15 pts, 11 inspections, 47 deficiencies, 3 detentions; credibility 0.69 [score_risk]\n- Vessel age: 9.0 of 10 pts, 23 years old [score_risk]\nOVERRIDES:\n- none\nCONDITIONS:\n- Move to an IACS member class society: total 65.1 -> 58.1 [find_risk_levers]\n- Reflag to a Paris MOU white-list flag: total 65.1 -> 61.1 [find_risk_levers]\n- Clear open class items (conditions or overdue survey): total 65.1 -> 62.1 [find_risk_levers]\nDATA GAPS:\n- Thin owner fleet record: score leans on the industry baseline [score_risk]\n- Mock mode: memo is templated, not LLM-written",
+      "memo": "RECOMMENDATION: REFER [score_risk]\nRISK SCORE: 65.1/100 (vessel 36.8/50 + owner 28.3/50) [score_risk]\nPREMIUM: $199,368 [price_premium]\nTOP RISK DRIVERS:\n- Non-IACS class society and open conditions of class (class society points 7.0/7.0, class status points 3.0/6.0) [score_risk]\n- Poor Port State Control history with 3 detentions from 11 inspections [get_psc_history, score_risk]\n- Grey-list flag [get_vessel_profile, score_risk]\nOVERRIDES: none [score_risk]\nCONDITIONS:\n- Move to an IACS member class society (reduces score by 7.0 to 58.1) [find_risk_levers]\n- Reflag to a Paris MOU white-list flag (reduces score by 4.0 to 61.1) [find_risk_levers]\n- Clear open class items (conditions or overdue survey) (reduces score by 3.0 to 62.1) [find_risk_levers]\nDATA GAPS:\n- Thin owner fleet record: score leans on the industry baseline [score_risk]",
       "followups": [
         {
           "question": "What if it had one fewer detention?",
@@ -618,18 +618,18 @@
               "tool": "score_risk",
               "input": {
                 "vessel_type": "Bulk Carrier",
-                "year_built": 2003,
-                "flag_list": "grey",
-                "iacs_member": false,
-                "class_status": "conditions",
-                "psc_inspections": 11,
-                "psc_deficiencies": 47,
-                "psc_detentions": 2,
                 "owner_inspections": 18,
+                "sanctions_possible": false,
+                "flag_list": "grey",
+                "class_status": "conditions",
+                "psc_detentions": 2,
                 "owner_deficiencies": 71,
-                "owner_detentions": 4,
+                "owner_detentions": 3,
+                "psc_deficiencies": 47,
+                "year_built": 2003,
                 "sanctions_match": false,
-                "sanctions_possible": false
+                "psc_inspections": 11,
+                "iacs_member": false
               }
             },
             {
@@ -692,7 +692,7 @@
                       "label": "Owner fleet detentions",
                       "points": 20.3,
                       "max": 35,
-                      "detail": "4 detentions in 18 fleet inspections"
+                      "detail": "3 detentions in 18 fleet inspections"
                     },
                     "fleet_deficiencies": {
                       "label": "Owner fleet deficiencies",
@@ -717,28 +717,82 @@
               "event": "tool_call",
               "tool": "price_premium",
               "input": {
-                "score": 63.2,
-                "insured_value_usd": 9000000
+                "insured_value_usd": 9000000,
+                "score": 58.3
               }
             },
             {
               "event": "tool_result",
               "tool": "price_premium",
               "output": {
-                "relativity": 1.16,
-                "expected_loss_usd": 125107,
-                "premium_usd": 162639,
-                "rate_on_value_pct": 1.807,
+                "relativity": 1.1,
+                "expected_loss_usd": 118757,
+                "premium_usd": 154384,
+                "rate_on_value_pct": 1.715,
+                "model_version": "prototype-0.3"
+              }
+            },
+            {
+              "event": "tool_call",
+              "tool": "find_risk_levers",
+              "input": {
+                "psc_deficiencies": 47,
+                "year_built": 2003,
+                "vessel_type": "Bulk Carrier",
+                "sanctions_match": false,
+                "psc_inspections": 11,
+                "owner_inspections": 18,
+                "flag_list": "grey",
+                "owner_deficiencies": 71,
+                "psc_detentions": 2,
+                "iacs_member": false,
+                "owner_detentions": 3,
+                "sanctions_possible": false,
+                "class_status": "conditions"
+              }
+            },
+            {
+              "event": "tool_result",
+              "tool": "find_risk_levers",
+              "output": {
+                "current_total": 63.2,
+                "current_recommendation": "REFER",
+                "levers": [
+                  {
+                    "change": "Move to an IACS member class society",
+                    "field": "iacs_member",
+                    "to": true,
+                    "new_total": 56.2,
+                    "reduction": 7.0,
+                    "new_recommendation": "REFER"
+                  },
+                  {
+                    "change": "Reflag to a Paris MOU white-list flag",
+                    "field": "flag_list",
+                    "to": "white",
+                    "new_total": 59.2,
+                    "reduction": 4.0,
+                    "new_recommendation": "REFER"
+                  },
+                  {
+                    "change": "Clear open class items (conditions or overdue survey)",
+                    "field": "class_status",
+                    "to": "in_class",
+                    "new_total": 60.2,
+                    "reduction": 3.0,
+                    "new_recommendation": "REFER"
+                  }
+                ],
                 "model_version": "prototype-0.3"
               }
             }
           ],
-          "memo": "WHAT-IF:\n- detentions: 3 [get_psc_history] -> 2 [score_risk input]\nVESSEL SCORE: 36.8 -> 34.9/50 [score_risk]\nRISK SCORE: 65.1 -> 63.2/100 [score_risk]\nRECOMMENDATION: REFER -> REFER [score_risk]\nPREMIUM: $165,840 -> $162,639 [price_premium]\nNote: hypothetical only; the vessel's actual record is unchanged."
+          "memo": "RECOMMENDATION: REFER [score_risk]\nRISK SCORE: 63.2/100 (vessel 34.9/50 + owner 28.3/50) [score_risk]\nPREMIUM: $154,384 [price_premium]\nTOP RISK DRIVERS:\n- Non-IACS class society and open conditions of class (class society points 7.0/7.0, class status points 3.0/6.0) [score_risk]\n- Port State Control history with 2 detentions from 11 inspections [score_risk]\n- Grey-list flag [get_vessel_profile, score_risk]\nOVERRIDES: none [score_risk]\nCONDITIONS:\n- Move to an IACS member class society (reduces score by 7.0 to 56.2) [find_risk_levers]\n- Reflag to a Paris MOU white-list flag (reduces score by 4.0 to 59.2) [find_risk_levers]\n- Clear open class items (conditions or overdue survey) (reduces score by 3.0 to 60.2) [find_risk_levers]\nDATA GAPS:\n- Thin owner fleet record: score leans on the industry baseline [score_risk]\n\nChanges evaluated:\n- Vessel PSC detentions: 3 -> 2 [get_psc_history, score_risk]\n- Owner fleet detentions: 4 -> 3 [get_owner_record, score_risk]"
         }
       ],
-      "mode": "mock",
-      "provider": "mock",
-      "model": null
+      "mode": "live",
+      "provider": "gemini",
+      "model": "gemini-3.5-flash-lite"
     },
     {
       "imo": "9900003",
@@ -796,8 +850,8 @@
           "event": "tool_call",
           "tool": "check_sanctions",
           "input": {
-            "imo": "9900003",
-            "owner_name": "Demo Sanctioned Trading Co"
+            "owner_name": "Demo Sanctioned Trading Co",
+            "imo": "9900003"
           }
         },
         {
@@ -843,19 +897,19 @@
           "event": "tool_call",
           "tool": "score_risk",
           "input": {
-            "vessel_type": "Bulk Carrier",
-            "year_built": 2012,
+            "psc_inspections": 1,
+            "sanctions_match": true,
+            "owner_inspections": 0,
+            "psc_detentions": 0,
+            "owner_detentions": 0,
             "flag_list": "white",
             "iacs_member": true,
-            "class_status": "in_class",
-            "psc_inspections": 1,
+            "year_built": 2012,
             "psc_deficiencies": 2,
-            "psc_detentions": 0,
-            "owner_inspections": 0,
+            "sanctions_possible": false,
             "owner_deficiencies": 0,
-            "owner_detentions": 0,
-            "sanctions_match": true,
-            "sanctions_possible": false
+            "class_status": "in_class",
+            "vessel_type": "Bulk Carrier"
           }
         },
         {
@@ -947,7 +1001,7 @@
           }
         }
       ],
-      "memo": "VESSEL: DEMO THIN DATA (IMO 9900003), Bulk Carrier, built 2012 [get_vessel_profile]\nOWNER: Demo Sanctioned Trading Co [get_vessel_profile]\nRECOMMENDATION: DECLINE [score_risk]\nRISK SCORE: 24.8/100 (vessel 11.5/50 + owner 13.3/50) [score_risk]\nPREMIUM: not quoted, recommendation is DECLINE [score_risk]\nTOP RISK DRIVERS:\n- Owner fleet detentions: 7.0 of 35 pts, no fleet record, industry baseline [score_risk]\n- Owner fleet deficiencies: 6.3 of 15 pts, no fleet record, industry baseline [score_risk]\n- Vessel age: 4.5 of 10 pts, 14 years old [score_risk]\nOVERRIDES:\n- Sanctions match on vessel or owner: automatic DECLINE [score_risk]\n- Sanctions hit: Demo Sanctioned Trading Co on DEMO-SDN [check_sanctions]\nCONDITIONS:\n- none\nDATA GAPS:\n- Missing owner_fleet_record [score_risk]\n- Thin vessel PSC record: score leans on the peer baseline [score_risk]\n- Thin owner fleet record: score leans on the industry baseline [score_risk]\n- No fleet record for owner Demo Sanctioned Trading Co [get_owner_record]\n- Mock mode: memo is templated, not LLM-written",
+      "memo": "RECOMMENDATION: DECLINE\nRISK SCORE: 24.8/100 (vessel 11.5/50 + owner 13.3/50) [score_risk]\nPREMIUM: not quoted\nTOP RISK DRIVERS: \n- Sanctions match on registered owner [check_sanctions]\n- Bulk Carrier vessel type [score_risk]\n- Vessel age of 14 years [score_risk]\nOVERRIDES: \n- Sanctions match on vessel or owner: automatic DECLINE [score_risk]\nCONDITIONS: none\nDATA GAPS: \n- owner_fleet_record [score_risk]\n- Thin vessel PSC record: score leans on the peer baseline [score_risk]\n- Thin owner fleet record: score leans on the industry baseline [score_risk]",
       "followups": [
         {
           "question": "What if it had one more detention?",
@@ -956,19 +1010,19 @@
               "event": "tool_call",
               "tool": "score_risk",
               "input": {
+                "class_status": "in_class",
+                "sanctions_match": true,
+                "owner_inspections": 0,
+                "flag_list": "white",
+                "psc_detentions": 1,
+                "owner_deficiencies": 0,
+                "sanctions_possible": false,
+                "iacs_member": true,
+                "owner_detentions": 0,
+                "psc_inspections": 1,
                 "vessel_type": "Bulk Carrier",
                 "year_built": 2012,
-                "flag_list": "white",
-                "iacs_member": true,
-                "class_status": "in_class",
-                "psc_inspections": 1,
-                "psc_deficiencies": 2,
-                "psc_detentions": 1,
-                "owner_inspections": 0,
-                "owner_deficiencies": 0,
-                "owner_detentions": 0,
-                "sanctions_match": true,
-                "sanctions_possible": false
+                "psc_deficiencies": 2
               }
             },
             {
@@ -1060,12 +1114,12 @@
               }
             }
           ],
-          "memo": "WHAT-IF:\n- detentions: 0 [get_psc_history] -> 1 [score_risk input]\nVESSEL SCORE: 11.5 -> 13.3/50 [score_risk]\nRISK SCORE: 24.8 -> 26.6/100 [score_risk]\nRECOMMENDATION: DECLINE -> DECLINE [score_risk]\nNote: hypothetical only; the vessel's actual record is unchanged."
+          "memo": "RECOMMENDATION: DECLINE\nRISK SCORE: 24.8 -> 26.6 / 100 (vessel 11.5 -> 13.3 / 50 + owner 13.3 -> 13.3 / 50) [score_risk]\nPREMIUM: not quoted\nTOP RISK DRIVERS: \n- Sanctions match on registered owner [check_sanctions]\n- Bulk Carrier vessel type [score_risk]\n- Vessel age of 14 years [score_risk]\n- Increased vessel detentions (0 -> 1) [get_psc_history, score_risk]\nOVERRIDES: \n- Sanctions match on vessel or owner: automatic DECLINE [score_risk]\nCONDITIONS: none\nDATA GAPS: \n- owner_fleet_record [score_risk]\n- Thin vessel PSC record: score leans on the peer baseline [score_risk]\n- Thin owner fleet record: score leans on the industry baseline [score_risk]"
         }
       ],
-      "mode": "mock",
-      "provider": "mock",
-      "model": null
+      "mode": "live",
+      "provider": "gemini",
+      "model": "gemini-3.5-flash-lite"
     },
     {
       "imo": "9900004",
@@ -1164,19 +1218,19 @@
           "event": "tool_call",
           "tool": "score_risk",
           "input": {
-            "vessel_type": "Container Ship",
-            "year_built": 2016,
-            "flag_list": "white",
-            "iacs_member": true,
-            "class_status": "in_class",
             "psc_inspections": 14,
-            "psc_deficiencies": 9,
-            "psc_detentions": 0,
-            "owner_inspections": 210,
-            "owner_deficiencies": 260,
             "owner_detentions": 3,
             "sanctions_match": false,
-            "sanctions_possible": false
+            "owner_deficiencies": 260,
+            "year_built": 2016,
+            "flag_list": "white",
+            "sanctions_possible": false,
+            "psc_deficiencies": 9,
+            "class_status": "in_class",
+            "vessel_type": "Container Ship",
+            "iacs_member": true,
+            "psc_detentions": 0,
+            "owner_inspections": 210
           }
         },
         {
@@ -1262,8 +1316,8 @@
           "event": "tool_call",
           "tool": "price_premium",
           "input": {
-            "score": 13.1,
-            "insured_value_usd": 60000000
+            "insured_value_usd": 60000000,
+            "score": 13.1
           }
         },
         {
@@ -1278,7 +1332,7 @@
           }
         }
       ],
-      "memo": "VESSEL: DEMO HARBOR BOX (IMO 9900004), Container Ship, built 2016 [get_vessel_profile]\nOWNER: Demo Box Lines AS [get_vessel_profile]\nRECOMMENDATION: ACCEPT [score_risk]\nRISK SCORE: 13.1/100 (vessel 6.0/50 + owner 7.1/50) [score_risk]\nPREMIUM: $521,539 (0.869% of value) [price_premium]\nTOP RISK DRIVERS:\n- Owner fleet detentions: 3.7 of 35 pts, 3 detentions in 210 fleet inspections [score_risk]\n- Owner fleet deficiencies: 3.4 of 15 pts, 260 deficiencies in 210 fleet inspections [score_risk]\n- Vessel age: 2.5 of 10 pts, 10 years old [score_risk]\nOVERRIDES:\n- none\nCONDITIONS:\n- none\nDATA GAPS:\n- Mock mode: memo is templated, not LLM-written",
+      "memo": "RECOMMENDATION: ACCEPT [score_risk]\nRISK SCORE: 13.1/100 (vessel 6.0/50 + owner 7.1/50) [score_risk]\nPREMIUM: $521,539 (rate on value: 0.869%, insured value: $60,000,000) [get_vessel_profile, score_risk, price_premium]\nTOP RISK DRIVERS:\n- Vessel age: 10 years old (built 2016) contributing 2.5/10 points [get_vessel_profile, score_risk]\n- Vessel type: Container Ship contributing 2/5 points [get_vessel_profile, score_risk]\n- Owner fleet record: 3 detentions and 260 deficiencies across 210 fleet inspections contributing 7.1/50 points [get_owner_record, score_risk]\nOVERRIDES: none [score_risk]\nCONDITIONS: none [score_risk]\nDATA GAPS: none [score_risk]",
       "followups": [
         {
           "question": "What if it had one more detention?",
@@ -1287,30 +1341,30 @@
               "event": "tool_call",
               "tool": "score_risk",
               "input": {
-                "vessel_type": "Container Ship",
-                "year_built": 2016,
-                "flag_list": "white",
-                "iacs_member": true,
-                "class_status": "in_class",
-                "psc_inspections": 14,
-                "psc_deficiencies": 9,
-                "psc_detentions": 1,
-                "owner_inspections": 210,
                 "owner_deficiencies": 260,
-                "owner_detentions": 3,
+                "psc_detentions": 0,
                 "sanctions_match": false,
-                "sanctions_possible": false
+                "class_status": "in_class",
+                "year_built": 2016,
+                "owner_inspections": 210,
+                "sanctions_possible": false,
+                "psc_deficiencies": 9,
+                "iacs_member": true,
+                "flag_list": "white",
+                "vessel_type": "Container Ship",
+                "psc_inspections": 14,
+                "owner_detentions": 4
               }
             },
             {
               "event": "tool_result",
               "tool": "score_risk",
               "output": {
-                "total": 15.4,
-                "vessel_score": 8.3,
-                "owner_score": 7.1,
+                "total": 14.1,
+                "vessel_score": 6.0,
+                "owner_score": 8.1,
                 "vessel": {
-                  "score": 8.3,
+                  "score": 6.0,
                   "max": 50,
                   "factors": {
                     "age": {
@@ -1321,9 +1375,9 @@
                     },
                     "psc": {
                       "label": "Vessel PSC record",
-                      "points": 3.8,
+                      "points": 1.5,
                       "max": 15,
-                      "detail": "14 inspections, 9 deficiencies, 1 detentions; credibility 0.74"
+                      "detail": "14 inspections, 9 deficiencies, 0 detentions; credibility 0.74"
                     },
                     "flag": {
                       "label": "Flag",
@@ -1355,14 +1409,14 @@
                   "notes": []
                 },
                 "owner": {
-                  "score": 7.1,
+                  "score": 8.1,
                   "max": 50,
                   "factors": {
                     "fleet_detentions": {
                       "label": "Owner fleet detentions",
-                      "points": 3.7,
+                      "points": 4.7,
                       "max": 35,
-                      "detail": "3 detentions in 210 fleet inspections"
+                      "detail": "4 detentions in 210 fleet inspections"
                     },
                     "fleet_deficiencies": {
                       "label": "Owner fleet deficiencies",
@@ -1385,28 +1439,28 @@
               "event": "tool_call",
               "tool": "price_premium",
               "input": {
-                "score": 15.4,
-                "insured_value_usd": 60000000
+                "insured_value_usd": 60000000,
+                "score": 14.1
               }
             },
             {
               "event": "tool_result",
               "tool": "price_premium",
               "output": {
-                "relativity": 0.58,
-                "expected_loss_usd": 421056,
-                "premium_usd": 547373,
-                "rate_on_value_pct": 0.912,
+                "relativity": 0.57,
+                "expected_loss_usd": 409824,
+                "premium_usd": 532771,
+                "rate_on_value_pct": 0.888,
                 "model_version": "prototype-0.3"
               }
             }
           ],
-          "memo": "WHAT-IF:\n- detentions: 0 [get_psc_history] -> 1 [score_risk input]\nVESSEL SCORE: 6.0 -> 8.3/50 [score_risk]\nRISK SCORE: 13.1 -> 15.4/100 [score_risk]\nRECOMMENDATION: ACCEPT -> ACCEPT [score_risk]\nPREMIUM: $521,539 -> $547,373 [price_premium]\nNote: hypothetical only; the vessel's actual record is unchanged."
+          "memo": "RECOMMENDATION: ACCEPT [score_risk]\nRISK SCORE: 13.1 -> 14.1/100 (vessel 6.0/50 + owner 7.1 -> 8.1/50) [score_risk]\nPREMIUM: $521,539 -> $532,771 (rate on value: 0.869% -> 0.888%, insured value: $60,000,000) [get_vessel_profile, score_risk, price_premium]\nTOP RISK DRIVERS:\n- Owner fleet detentions: 3 -> 4 detentions in 210 fleet inspections (owner detentions points 3.7 -> 4.7) [get_owner_record, score_risk]\n- Vessel age: 10 years old (built 2016) contributing 2.5/10 points [get_vessel_profile, score_risk]\n- Vessel type: Container Ship contributing 2/5 points [get_vessel_profile, score_risk]\nOVERRIDES: none [score_risk]\nCONDITIONS: none [score_risk]\nDATA GAPS: none [score_risk]"
         }
       ],
-      "mode": "mock",
-      "provider": "mock",
-      "model": null
+      "mode": "live",
+      "provider": "gemini",
+      "model": "gemini-3.5-flash-lite"
     },
     {
       "imo": "9900005",
@@ -1464,8 +1518,8 @@
           "event": "tool_call",
           "tool": "check_sanctions",
           "input": {
-            "imo": "9900005",
-            "owner_name": "Demo Gulf Tankers Inc"
+            "owner_name": "Demo Gulf Tankers Inc",
+            "imo": "9900005"
           }
         },
         {
@@ -1505,19 +1559,19 @@
           "event": "tool_call",
           "tool": "score_risk",
           "input": {
-            "vessel_type": "Tanker",
-            "year_built": 2008,
-            "flag_list": "white",
-            "iacs_member": true,
-            "class_status": "overdue_survey",
             "psc_inspections": 12,
-            "psc_deficiencies": 22,
-            "psc_detentions": 1,
-            "owner_inspections": 48,
-            "owner_deficiencies": 140,
+            "flag_list": "white",
             "owner_detentions": 3,
+            "owner_deficiencies": 140,
+            "vessel_type": "Tanker",
             "sanctions_match": false,
-            "sanctions_possible": false
+            "class_status": "overdue_survey",
+            "iacs_member": true,
+            "owner_inspections": 48,
+            "year_built": 2008,
+            "sanctions_possible": false,
+            "psc_detentions": 1,
+            "psc_deficiencies": 22
           }
         },
         {
@@ -1601,21 +1655,40 @@
         },
         {
           "event": "tool_call",
+          "tool": "price_premium",
+          "input": {
+            "score": 37.7,
+            "insured_value_usd": 28000000
+          }
+        },
+        {
+          "event": "tool_result",
+          "tool": "price_premium",
+          "output": {
+            "relativity": 0.85,
+            "expected_loss_usd": 286406,
+            "premium_usd": 372328,
+            "rate_on_value_pct": 1.33,
+            "model_version": "prototype-0.3"
+          }
+        },
+        {
+          "event": "tool_call",
           "tool": "find_risk_levers",
           "input": {
-            "vessel_type": "Tanker",
-            "year_built": 2008,
-            "flag_list": "white",
-            "iacs_member": true,
-            "class_status": "overdue_survey",
-            "psc_inspections": 12,
             "psc_deficiencies": 22,
+            "sanctions_match": false,
+            "year_built": 2008,
+            "sanctions_possible": false,
+            "vessel_type": "Tanker",
             "psc_detentions": 1,
             "owner_inspections": 48,
+            "psc_inspections": 12,
             "owner_deficiencies": 140,
-            "owner_detentions": 3,
-            "sanctions_match": false,
-            "sanctions_possible": false
+            "class_status": "overdue_survey",
+            "flag_list": "white",
+            "iacs_member": true,
+            "owner_detentions": 3
           }
         },
         {
@@ -1636,28 +1709,9 @@
             ],
             "model_version": "prototype-0.3"
           }
-        },
-        {
-          "event": "tool_call",
-          "tool": "price_premium",
-          "input": {
-            "score": 37.7,
-            "insured_value_usd": 28000000
-          }
-        },
-        {
-          "event": "tool_result",
-          "tool": "price_premium",
-          "output": {
-            "relativity": 0.85,
-            "expected_loss_usd": 286406,
-            "premium_usd": 372328,
-            "rate_on_value_pct": 1.33,
-            "model_version": "prototype-0.3"
-          }
         }
       ],
-      "memo": "VESSEL: DEMO GULF CRUDE (IMO 9900005), Tanker, built 2008 [get_vessel_profile]\nOWNER: Demo Gulf Tankers Inc [get_vessel_profile]\nRECOMMENDATION: ACCEPT WITH CONDITIONS [score_risk]\nRISK SCORE: 37.7/100 (vessel 18.3/50 + owner 19.4/50) [score_risk]\nPREMIUM: $372,328 (1.33% of value) [price_premium]\nTOP RISK DRIVERS:\n- Owner fleet detentions: 12.4 of 35 pts, 3 detentions in 48 fleet inspections [score_risk]\n- Owner fleet deficiencies: 7.0 of 15 pts, 140 deficiencies in 48 fleet inspections [score_risk]\n- Vessel age: 6.5 of 10 pts, 18 years old [score_risk]\nOVERRIDES:\n- none\nCONDITIONS:\n- Clear open class items (conditions or overdue survey): total 37.7 -> 32.7 [find_risk_levers]\nDATA GAPS:\n- Mock mode: memo is templated, not LLM-written",
+      "memo": "RECOMMENDATION: ACCEPT WITH CONDITIONS [score_risk]\nRISK SCORE: 37.7/100 (vessel 18.3/50 + owner 19.4/50) [score_risk]\nPREMIUM: $372,328 [price_premium]\nTOP RISK DRIVERS:\n- Vessel class status: overdue survey adds 5.0 points [score_risk]\n- Vessel age: built in 2008 (18 years old) adds 6.5 points [score_risk]\n- Owner fleet record: 3 detentions and 140 deficiencies in 48 fleet inspections adds 19.4 total owner points [score_owner_record, score_risk]\nOVERRIDES: none [score_risk]\nCONDITIONS:\n- Clear open class items (class status: overdue_survey -> in_class) to reduce score by 5.0 points (37.7 -> 32.7) [find_risk_levers]\nDATA GAPS: none [score_risk]",
       "followups": [
         {
           "question": "What if it had one fewer detention?",
@@ -1666,30 +1720,30 @@
               "event": "tool_call",
               "tool": "score_risk",
               "input": {
-                "vessel_type": "Tanker",
-                "year_built": 2008,
-                "flag_list": "white",
-                "iacs_member": true,
-                "class_status": "overdue_survey",
-                "psc_inspections": 12,
-                "psc_deficiencies": 22,
-                "psc_detentions": 0,
                 "owner_inspections": 48,
-                "owner_deficiencies": 140,
-                "owner_detentions": 3,
                 "sanctions_match": false,
-                "sanctions_possible": false
+                "psc_deficiencies": 22,
+                "psc_inspections": 12,
+                "sanctions_possible": false,
+                "flag_list": "white",
+                "owner_deficiencies": 140,
+                "class_status": "overdue_survey",
+                "psc_detentions": 1,
+                "year_built": 2008,
+                "owner_detentions": 2,
+                "vessel_type": "Tanker",
+                "iacs_member": true
               }
             },
             {
               "event": "tool_result",
               "tool": "score_risk",
               "output": {
-                "total": 35.2,
-                "vessel_score": 15.8,
-                "owner_score": 19.4,
+                "total": 34.2,
+                "vessel_score": 18.3,
+                "owner_score": 15.9,
                 "vessel": {
-                  "score": 15.8,
+                  "score": 18.3,
                   "max": 50,
                   "factors": {
                     "age": {
@@ -1700,9 +1754,9 @@
                     },
                     "psc": {
                       "label": "Vessel PSC record",
-                      "points": 2.3,
+                      "points": 4.8,
                       "max": 15,
-                      "detail": "12 inspections, 22 deficiencies, 0 detentions; credibility 0.71"
+                      "detail": "12 inspections, 22 deficiencies, 1 detentions; credibility 0.71"
                     },
                     "flag": {
                       "label": "Flag",
@@ -1734,14 +1788,14 @@
                   "notes": []
                 },
                 "owner": {
-                  "score": 19.4,
+                  "score": 15.9,
                   "max": 50,
                   "factors": {
                     "fleet_detentions": {
                       "label": "Owner fleet detentions",
-                      "points": 12.4,
+                      "points": 8.9,
                       "max": 35,
-                      "detail": "3 detentions in 48 fleet inspections"
+                      "detail": "2 detentions in 48 fleet inspections"
                     },
                     "fleet_deficiencies": {
                       "label": "Owner fleet deficiencies",
@@ -1764,7 +1818,7 @@
               "event": "tool_call",
               "tool": "price_premium",
               "input": {
-                "score": 35.2,
+                "score": 34.2,
                 "insured_value_usd": 28000000
               }
             },
@@ -1772,20 +1826,58 @@
               "event": "tool_result",
               "tool": "price_premium",
               "output": {
-                "relativity": 0.82,
-                "expected_loss_usd": 276326,
-                "premium_usd": 359224,
-                "rate_on_value_pct": 1.283,
+                "relativity": 0.81,
+                "expected_loss_usd": 272294,
+                "premium_usd": 353983,
+                "rate_on_value_pct": 1.264,
+                "model_version": "prototype-0.3"
+              }
+            },
+            {
+              "event": "tool_call",
+              "tool": "find_risk_levers",
+              "input": {
+                "year_built": 2008,
+                "sanctions_match": false,
+                "iacs_member": true,
+                "owner_inspections": 48,
+                "psc_inspections": 12,
+                "sanctions_possible": false,
+                "psc_detentions": 1,
+                "owner_detentions": 2,
+                "vessel_type": "Tanker",
+                "psc_deficiencies": 22,
+                "flag_list": "white",
+                "class_status": "overdue_survey",
+                "owner_deficiencies": 140
+              }
+            },
+            {
+              "event": "tool_result",
+              "tool": "find_risk_levers",
+              "output": {
+                "current_total": 34.2,
+                "current_recommendation": "ACCEPT WITH CONDITIONS",
+                "levers": [
+                  {
+                    "change": "Clear open class items (conditions or overdue survey)",
+                    "field": "class_status",
+                    "to": "in_class",
+                    "new_total": 29.2,
+                    "reduction": 5.0,
+                    "new_recommendation": "ACCEPT"
+                  }
+                ],
                 "model_version": "prototype-0.3"
               }
             }
           ],
-          "memo": "WHAT-IF:\n- detentions: 1 [get_psc_history] -> 0 [score_risk input]\nVESSEL SCORE: 18.3 -> 15.8/50 [score_risk]\nRISK SCORE: 37.7 -> 35.2/100 [score_risk]\nRECOMMENDATION: ACCEPT WITH CONDITIONS -> ACCEPT WITH CONDITIONS [score_risk]\nPREMIUM: $372,328 -> $359,224 [price_premium]\nNote: hypothetical only; the vessel's actual record is unchanged."
+          "memo": "RECOMMENDATION: ACCEPT WITH CONDITIONS [score_risk]\nRISK SCORE: 34.2/100 (vessel 18.3/50 + owner 15.9/50) [score_risk]\nPREMIUM: $353,983 [price_premium]\nTOP RISK DRIVERS:\n- Vessel class status: overdue survey adds 5.0 points [score_risk]\n- Vessel age: built in 2008 (18 years old) adds 6.5 points [score_risk]\n- Owner fleet record: 2 detentions and 140 deficiencies in 48 fleet inspections adds 15.9 total owner points [score_owner_record, score_risk]\nOVERRIDES: none [score_risk]\nCONDITIONS:\n- Clear open class items (class status: overdue_survey -> in_class) to reduce score by 5.0 points (34.2 -> 29.2) [find_risk_levers]\nDATA GAPS: none [score_risk]\n\nChanges applied:\n- Owner fleet detentions: 3 -> 2 [get_owner_record, score_risk]\n- Risk score: 37.7 -> 34.2 [score_risk]\n- Owner score: 19.4 -> 15.9 [score_risk]\n- Premium: $372,328 -> $353,983 [price_premium]"
         }
       ],
-      "mode": "mock",
-      "provider": "mock",
-      "model": null
+      "mode": "live",
+      "provider": "gemini",
+      "model": "gemini-3.5-flash-lite"
     },
     {
       "imo": "9900006",
@@ -1884,19 +1976,19 @@
           "event": "tool_call",
           "tool": "score_risk",
           "input": {
-            "vessel_type": "General Cargo",
+            "owner_inspections": 7,
+            "sanctions_possible": false,
             "year_built": 1998,
             "flag_list": "black",
-            "iacs_member": false,
-            "class_status": "conditions",
-            "psc_inspections": 6,
-            "psc_deficiencies": 31,
             "psc_detentions": 2,
-            "owner_inspections": 7,
+            "iacs_member": false,
+            "psc_deficiencies": 31,
             "owner_deficiencies": 40,
             "owner_detentions": 2,
+            "vessel_type": "General Cargo",
+            "psc_inspections": 6,
             "sanctions_match": false,
-            "sanctions_possible": false
+            "class_status": "conditions"
           }
         },
         {
@@ -1982,21 +2074,40 @@
         },
         {
           "event": "tool_call",
+          "tool": "price_premium",
+          "input": {
+            "score": 63.5,
+            "insured_value_usd": 3000000
+          }
+        },
+        {
+          "event": "tool_result",
+          "tool": "price_premium",
+          "output": {
+            "relativity": 1.16,
+            "expected_loss_usd": 41832,
+            "premium_usd": 54382,
+            "rate_on_value_pct": 1.813,
+            "model_version": "prototype-0.3"
+          }
+        },
+        {
+          "event": "tool_call",
           "tool": "find_risk_levers",
           "input": {
-            "vessel_type": "General Cargo",
-            "year_built": 1998,
-            "flag_list": "black",
             "iacs_member": false,
+            "owner_deficiencies": 40,
+            "owner_inspections": 7,
+            "vessel_type": "General Cargo",
+            "psc_deficiencies": 31,
             "class_status": "conditions",
             "psc_inspections": 6,
-            "psc_deficiencies": 31,
-            "psc_detentions": 2,
-            "owner_inspections": 7,
-            "owner_deficiencies": 40,
-            "owner_detentions": 2,
+            "flag_list": "black",
+            "sanctions_possible": false,
             "sanctions_match": false,
-            "sanctions_possible": false
+            "psc_detentions": 2,
+            "year_built": 1998,
+            "owner_detentions": 2
           }
         },
         {
@@ -2033,28 +2144,9 @@
             ],
             "model_version": "prototype-0.3"
           }
-        },
-        {
-          "event": "tool_call",
-          "tool": "price_premium",
-          "input": {
-            "score": 63.5,
-            "insured_value_usd": 3000000
-          }
-        },
-        {
-          "event": "tool_result",
-          "tool": "price_premium",
-          "output": {
-            "relativity": 1.16,
-            "expected_loss_usd": 41832,
-            "premium_usd": 54382,
-            "rate_on_value_pct": 1.813,
-            "model_version": "prototype-0.3"
-          }
         }
       ],
-      "memo": "VESSEL: DEMO OLD COASTER (IMO 9900006), General Cargo, built 1998 [get_vessel_profile]\nOWNER: Demo Coastal Trading Co [get_vessel_profile]\nRECOMMENDATION: REFER [score_risk]\nRISK SCORE: 63.5/100 (vessel 40.9/50 + owner 22.6/50) [score_risk]\nPREMIUM: $54,382 (1.813% of value) [price_premium]\nTOP RISK DRIVERS:\n- Owner fleet detentions: 14.3 of 35 pts, 2 detentions in 7 fleet inspections [score_risk]\n- Vessel age: 10.0 of 10 pts, 28 years old [score_risk]\n- Vessel PSC record: 9.9 of 15 pts, 6 inspections, 31 deficiencies, 2 detentions; credibility 0.55 [score_risk]\nOVERRIDES:\n- none\nCONDITIONS:\n- Reflag to a Paris MOU white-list flag: total 63.5 -> 56.5 [find_risk_levers]\n- Move to an IACS member class society: total 63.5 -> 56.5 [find_risk_levers]\n- Clear open class items (conditions or overdue survey): total 63.5 -> 60.5 [find_risk_levers]\nDATA GAPS:\n- Thin owner fleet record: score leans on the industry baseline [score_risk]\n- Mock mode: memo is templated, not LLM-written",
+      "memo": "RECOMMENDATION: REFER [score_risk]\nRISK SCORE: 63.5/100 (vessel 40.9/50 + owner 22.6/50) [score_risk]\nPREMIUM: $54,382 [price_premium]\nTOP RISK DRIVERS:\n- Vessel age: 28 years old built in 1998 [get_vessel_profile, score_risk]\n- Flag and class: Black-list flag (Demo Black Flag) and non-IACS class society (Demo Local Register) with open conditions of class [get_vessel_profile, score_risk]\n- PSC history: 6 inspections, 31 deficiencies, and 2 detentions [get_psc_history, score_risk]\nOVERRIDES: none [score_risk]\nCONDITIONS:\n- Reflag to a Paris MOU white-list flag: score reduction of 7.0 (63.5 -> 56.5) [find_risk_levers]\n- Move to an IACS member class society: score reduction of 7.0 (63.5 -> 56.5) [find_risk_levers]\n- Clear open class items (conditions or overdue survey): score reduction of 3.0 (63.5 -> 60.5) [find_risk_levers]\nDATA GAPS:\n- Thin owner fleet record: score leans on the industry baseline [score_risk]",
       "followups": [
         {
           "question": "What if it had one fewer detention?",
@@ -2063,28 +2155,28 @@
               "event": "tool_call",
               "tool": "score_risk",
               "input": {
+                "iacs_member": false,
+                "psc_deficiencies": 31,
+                "class_status": "conditions",
+                "owner_deficiencies": 40,
+                "sanctions_possible": false,
+                "owner_inspections": 7,
+                "sanctions_match": false,
+                "flag_list": "black",
+                "psc_detentions": 1,
                 "vessel_type": "General Cargo",
                 "year_built": 1998,
-                "flag_list": "black",
-                "iacs_member": false,
-                "class_status": "conditions",
                 "psc_inspections": 6,
-                "psc_deficiencies": 31,
-                "psc_detentions": 1,
-                "owner_inspections": 7,
-                "owner_deficiencies": 40,
-                "owner_detentions": 2,
-                "sanctions_match": false,
-                "sanctions_possible": false
+                "owner_detentions": 1
               }
             },
             {
               "event": "tool_result",
               "tool": "score_risk",
               "output": {
-                "total": 61.6,
+                "total": 61.1,
                 "vessel_score": 39.0,
-                "owner_score": 22.6,
+                "owner_score": 22.1,
                 "vessel": {
                   "score": 39.0,
                   "max": 50,
@@ -2131,14 +2223,14 @@
                   "notes": []
                 },
                 "owner": {
-                  "score": 22.6,
+                  "score": 22.1,
                   "max": 50,
                   "factors": {
                     "fleet_detentions": {
                       "label": "Owner fleet detentions",
-                      "points": 14.3,
+                      "points": 13.8,
                       "max": 35,
-                      "detail": "2 detentions in 7 fleet inspections"
+                      "detail": "1 detentions in 7 fleet inspections"
                     },
                     "fleet_deficiencies": {
                       "label": "Owner fleet deficiencies",
@@ -2163,7 +2255,7 @@
               "event": "tool_call",
               "tool": "price_premium",
               "input": {
-                "score": 61.6,
+                "score": 61.1,
                 "insured_value_usd": 3000000
               }
             },
@@ -2171,20 +2263,74 @@
               "event": "tool_result",
               "tool": "price_premium",
               "output": {
-                "relativity": 1.14,
-                "expected_loss_usd": 41011,
-                "premium_usd": 53315,
-                "rate_on_value_pct": 1.777,
+                "relativity": 1.13,
+                "expected_loss_usd": 40795,
+                "premium_usd": 53034,
+                "rate_on_value_pct": 1.768,
+                "model_version": "prototype-0.3"
+              }
+            },
+            {
+              "event": "tool_call",
+              "tool": "find_risk_levers",
+              "input": {
+                "psc_inspections": 6,
+                "owner_detentions": 1,
+                "sanctions_match": false,
+                "psc_deficiencies": 31,
+                "vessel_type": "General Cargo",
+                "iacs_member": false,
+                "class_status": "conditions",
+                "owner_inspections": 7,
+                "year_built": 1998,
+                "owner_deficiencies": 40,
+                "sanctions_possible": false,
+                "flag_list": "black",
+                "psc_detentions": 1
+              }
+            },
+            {
+              "event": "tool_result",
+              "tool": "find_risk_levers",
+              "output": {
+                "current_total": 61.1,
+                "current_recommendation": "REFER",
+                "levers": [
+                  {
+                    "change": "Reflag to a Paris MOU white-list flag",
+                    "field": "flag_list",
+                    "to": "white",
+                    "new_total": 54.1,
+                    "reduction": 7.0,
+                    "new_recommendation": "REFER"
+                  },
+                  {
+                    "change": "Move to an IACS member class society",
+                    "field": "iacs_member",
+                    "to": true,
+                    "new_total": 54.1,
+                    "reduction": 7.0,
+                    "new_recommendation": "REFER"
+                  },
+                  {
+                    "change": "Clear open class items (conditions or overdue survey)",
+                    "field": "class_status",
+                    "to": "in_class",
+                    "new_total": 58.1,
+                    "reduction": 3.0,
+                    "new_recommendation": "REFER"
+                  }
+                ],
                 "model_version": "prototype-0.3"
               }
             }
           ],
-          "memo": "WHAT-IF:\n- detentions: 2 [get_psc_history] -> 1 [score_risk input]\nVESSEL SCORE: 40.9 -> 39.0/50 [score_risk]\nRISK SCORE: 63.5 -> 61.6/100 [score_risk]\nRECOMMENDATION: REFER -> REFER [score_risk]\nPREMIUM: $54,382 -> $53,315 [price_premium]\nNote: hypothetical only; the vessel's actual record is unchanged."
+          "memo": "RECOMMENDATION: REFER [score_risk]\nRISK SCORE: 61.1/100 (vessel 39.0/50 + owner 22.1/50) [score_risk]\nPREMIUM: $53,034 [price_premium]\nTOP RISK DRIVERS:\n- Vessel age: 28 years old built in 1998 [get_vessel_profile, score_risk]\n- Flag and class: Black-list flag (Demo Black Flag) and non-IACS class society (Demo Local Register) with open conditions of class [get_vessel_profile, score_risk]\n- PSC history: 6 inspections, 31 deficiencies, and 1 detention [get_psc_history, score_risk]\nOVERRIDES: none [score_risk]\nCONDITIONS:\n- Reflag to a Paris MOU white-list flag: score reduction of 7.0 (61.1 -> 54.1) [find_risk_levers]\n- Move to an IACS member class society: score reduction of 7.0 (61.1 -> 54.1) [find_risk_levers]\n- Clear open class items (conditions or overdue survey): score reduction of 3.0 (61.1 -> 58.1) [find_risk_levers]\nDATA GAPS:\n- Thin owner fleet record: score leans on the industry baseline [score_risk]"
         }
       ],
-      "mode": "mock",
-      "provider": "mock",
-      "model": null
+      "mode": "live",
+      "provider": "gemini",
+      "model": "gemini-3.5-flash-lite"
     },
     {
       "imo": "9900007",
@@ -2242,8 +2388,8 @@
           "event": "tool_call",
           "tool": "check_sanctions",
           "input": {
-            "imo": "9900007",
-            "owner_name": "Demo Auto Logistics Ltd"
+            "owner_name": "Demo Auto Logistics Ltd",
+            "imo": "9900007"
           }
         },
         {
@@ -2283,19 +2429,19 @@
           "event": "tool_call",
           "tool": "score_risk",
           "input": {
-            "vessel_type": "Ro-Ro",
-            "year_built": 2011,
-            "flag_list": "white",
-            "iacs_member": true,
-            "class_status": "in_class",
-            "psc_inspections": 10,
-            "psc_deficiencies": 12,
-            "psc_detentions": 0,
-            "owner_inspections": 120,
-            "owner_deficiencies": 190,
             "owner_detentions": 2,
             "sanctions_match": false,
-            "sanctions_possible": false
+            "owner_deficiencies": 190,
+            "vessel_type": "Ro-Ro",
+            "owner_inspections": 120,
+            "psc_deficiencies": 12,
+            "psc_detentions": 0,
+            "sanctions_possible": false,
+            "class_status": "in_class",
+            "year_built": 2011,
+            "iacs_member": true,
+            "flag_list": "white",
+            "psc_inspections": 10
           }
         },
         {
@@ -2381,23 +2527,52 @@
           "event": "tool_call",
           "tool": "price_premium",
           "input": {
-            "score": 20.7,
-            "insured_value_usd": 45000000
+            "insured_value_usd": 45000000,
+            "score": 13.2
           }
         },
         {
           "event": "tool_result",
           "tool": "price_premium",
           "output": {
-            "relativity": 0.65,
-            "expected_loss_usd": 350136,
-            "premium_usd": 455177,
-            "rate_on_value_pct": 1.012,
+            "relativity": 0.56,
+            "expected_loss_usd": 301536,
+            "premium_usd": 391997,
+            "rate_on_value_pct": 0.871,
+            "model_version": "prototype-0.3"
+          }
+        },
+        {
+          "event": "tool_call",
+          "tool": "find_risk_levers",
+          "input": {
+            "owner_detentions": 2,
+            "owner_inspections": 120,
+            "psc_detentions": 0,
+            "owner_deficiencies": 190,
+            "psc_deficiencies": 12,
+            "flag_list": "white",
+            "iacs_member": true,
+            "psc_inspections": 10,
+            "vessel_type": "Ro-Ro",
+            "sanctions_match": false,
+            "sanctions_possible": false,
+            "class_status": "in_class",
+            "year_built": 2011
+          }
+        },
+        {
+          "event": "tool_result",
+          "tool": "find_risk_levers",
+          "output": {
+            "current_total": 20.7,
+            "current_recommendation": "ACCEPT",
+            "levers": [],
             "model_version": "prototype-0.3"
           }
         }
       ],
-      "memo": "VESSEL: DEMO AUTO EXPRESS (IMO 9900007), Ro-Ro, built 2011 [get_vessel_profile]\nOWNER: Demo Auto Logistics Ltd [get_vessel_profile]\nRECOMMENDATION: ACCEPT [score_risk]\nRISK SCORE: 20.7/100 (vessel 12.1/50 + owner 8.6/50) [score_risk]\nPREMIUM: $455,177 (1.012% of value) [price_premium]\nTOP RISK DRIVERS:\n- Vessel age: 5.0 of 10 pts, 15 years old [score_risk]\n- Vessel type: 5 of 5 pts, Ro-Ro [score_risk]\n- Owner fleet detentions: 4.3 of 35 pts, 2 detentions in 120 fleet inspections [score_risk]\nOVERRIDES:\n- none\nCONDITIONS:\n- none\nDATA GAPS:\n- Mock mode: memo is templated, not LLM-written",
+      "memo": "RECOMMENDATION: ACCEPT [score_risk]\nRISK SCORE: 20.7/100 (vessel 12.1/50 + owner 8.6/50) [score_risk]\nPREMIUM: $391,997 [price_premium]\nTOP RISK DRIVERS:\n- Vessel type (Ro-Ro) adds 5.0/5.0 points [score_risk]\n- Vessel age (15 years old built in 2011) adds 5.0/10 points [get_vessel_profile, score_risk]\n- Fleet detentions (2 in 120 inspections) add 4.3/35 points [get_owner_record, score_risk]\nOVERRIDES: none [score_risk]\nCONDITIONS: none [find_risk_levers]\nDATA GAPS: none [score_risk]",
       "followups": [
         {
           "question": "What if it had one more detention?",
@@ -2406,30 +2581,30 @@
               "event": "tool_call",
               "tool": "score_risk",
               "input": {
-                "vessel_type": "Ro-Ro",
-                "year_built": 2011,
-                "flag_list": "white",
-                "iacs_member": true,
-                "class_status": "in_class",
-                "psc_inspections": 10,
                 "psc_deficiencies": 12,
-                "psc_detentions": 1,
-                "owner_inspections": 120,
+                "owner_detentions": 3,
+                "iacs_member": true,
+                "year_built": 2011,
+                "psc_detentions": 0,
                 "owner_deficiencies": 190,
-                "owner_detentions": 2,
                 "sanctions_match": false,
-                "sanctions_possible": false
+                "sanctions_possible": false,
+                "class_status": "in_class",
+                "vessel_type": "Ro-Ro",
+                "owner_inspections": 120,
+                "psc_inspections": 10,
+                "flag_list": "white"
               }
             },
             {
               "event": "tool_result",
               "tool": "score_risk",
               "output": {
-                "total": 23.5,
-                "vessel_score": 14.9,
-                "owner_score": 8.6,
+                "total": 22.4,
+                "vessel_score": 12.1,
+                "owner_score": 10.3,
                 "vessel": {
-                  "score": 14.9,
+                  "score": 12.1,
                   "max": 50,
                   "factors": {
                     "age": {
@@ -2440,9 +2615,9 @@
                     },
                     "psc": {
                       "label": "Vessel PSC record",
-                      "points": 4.9,
+                      "points": 2.1,
                       "max": 15,
-                      "detail": "10 inspections, 12 deficiencies, 1 detentions; credibility 0.67"
+                      "detail": "10 inspections, 12 deficiencies, 0 detentions; credibility 0.67"
                     },
                     "flag": {
                       "label": "Flag",
@@ -2474,14 +2649,14 @@
                   "notes": []
                 },
                 "owner": {
-                  "score": 8.6,
+                  "score": 10.3,
                   "max": 50,
                   "factors": {
                     "fleet_detentions": {
                       "label": "Owner fleet detentions",
-                      "points": 4.3,
+                      "points": 6.0,
                       "max": 35,
-                      "detail": "2 detentions in 120 fleet inspections"
+                      "detail": "3 detentions in 120 fleet inspections"
                     },
                     "fleet_deficiencies": {
                       "label": "Owner fleet deficiencies",
@@ -2504,7 +2679,7 @@
               "event": "tool_call",
               "tool": "price_premium",
               "input": {
-                "score": 23.5,
+                "score": 25,
                 "insured_value_usd": 45000000
               }
             },
@@ -2512,20 +2687,49 @@
               "event": "tool_result",
               "tool": "price_premium",
               "output": {
-                "relativity": 0.68,
-                "expected_loss_usd": 368280,
-                "premium_usd": 478764,
-                "rate_on_value_pct": 1.064,
+                "relativity": 0.7,
+                "expected_loss_usd": 378000,
+                "premium_usd": 491400,
+                "rate_on_value_pct": 1.092,
+                "model_version": "prototype-0.3"
+              }
+            },
+            {
+              "event": "tool_call",
+              "tool": "find_risk_levers",
+              "input": {
+                "owner_inspections": 120,
+                "flag_list": "white",
+                "sanctions_match": false,
+                "sanctions_possible": false,
+                "owner_detentions": 3,
+                "class_status": "in_class",
+                "psc_deficiencies": 12,
+                "psc_inspections": 10,
+                "vessel_type": "Ro-Ro",
+                "psc_detentions": 0,
+                "year_built": 2011,
+                "owner_deficiencies": 190,
+                "iacs_member": true
+              }
+            },
+            {
+              "event": "tool_result",
+              "tool": "find_risk_levers",
+              "output": {
+                "current_total": 22.4,
+                "current_recommendation": "ACCEPT",
+                "levers": [],
                 "model_version": "prototype-0.3"
               }
             }
           ],
-          "memo": "WHAT-IF:\n- detentions: 0 [get_psc_history] -> 1 [score_risk input]\nVESSEL SCORE: 12.1 -> 14.9/50 [score_risk]\nRISK SCORE: 20.7 -> 23.5/100 [score_risk]\nRECOMMENDATION: ACCEPT -> ACCEPT [score_risk]\nPREMIUM: $455,177 -> $478,764 [price_premium]\nNote: hypothetical only; the vessel's actual record is unchanged."
+          "memo": "RECOMMENDATION: ACCEPT [score_risk]\nRISK SCORE: 22.4/100 (vessel 12.1/50 + owner 10.3/50) [score_risk]\nPREMIUM: $491,400 [price_premium]\nTOP RISK DRIVERS:\n- Owner detentions: 2 -> 3 detentions in 120 fleet inspections [get_owner_record, score_risk]\n- Vessel type (Ro-Ro) adds 5.0/5.0 points [score_risk]\n- Vessel age (15 years old built in 2011) adds 5.0/10 points [get_vessel_profile, score_risk]\nOVERRIDES: none [score_risk]\nCONDITIONS: none [find_risk_levers]\nDATA GAPS: none [score_risk]"
         }
       ],
-      "mode": "mock",
-      "provider": "mock",
-      "model": null
+      "mode": "live",
+      "provider": "gemini",
+      "model": "gemini-3.5-flash-lite"
     },
     {
       "imo": "9900008",
@@ -2583,8 +2787,8 @@
           "event": "tool_call",
           "tool": "check_sanctions",
           "input": {
-            "imo": "9900008",
-            "owner_name": "Demo Opaque Holdings SA"
+            "owner_name": "Demo Opaque Holdings SA",
+            "imo": "9900008"
           }
         },
         {
@@ -2624,19 +2828,19 @@
           "event": "tool_call",
           "tool": "score_risk",
           "input": {
-            "vessel_type": "Bulk Carrier",
-            "year_built": 2000,
             "flag_list": "grey",
+            "owner_deficiencies": 71,
+            "owner_inspections": 18,
             "iacs_member": true,
             "class_status": "suspended",
-            "psc_inspections": 8,
             "psc_deficiencies": 30,
+            "psc_inspections": 8,
+            "vessel_type": "Bulk Carrier",
             "psc_detentions": 1,
-            "owner_inspections": 18,
-            "owner_deficiencies": 71,
-            "owner_detentions": 4,
+            "sanctions_possible": false,
             "sanctions_match": false,
-            "sanctions_possible": false
+            "year_built": 2000,
+            "owner_detentions": 4
           }
         },
         {
@@ -2723,7 +2927,7 @@
           }
         }
       ],
-      "memo": "VESSEL: DEMO LAPSED CLASS (IMO 9900008), Bulk Carrier, built 2000 [get_vessel_profile]\nOWNER: Demo Opaque Holdings SA [get_vessel_profile]\nRECOMMENDATION: DECLINE [score_risk]\nRISK SCORE: 58.0/100 (vessel 29.7/50 + owner 28.3/50) [score_risk]\nPREMIUM: not quoted, recommendation is DECLINE [score_risk]\nTOP RISK DRIVERS:\n- Owner fleet detentions: 20.3 of 35 pts, 4 detentions in 18 fleet inspections [score_risk]\n- Vessel age: 10.0 of 10 pts, 26 years old [score_risk]\n- Owner fleet deficiencies: 8.0 of 15 pts, 71 deficiencies in 18 fleet inspections [score_risk]\nOVERRIDES:\n- Class suspended or withdrawn: hull cover requires class, automatic DECLINE [score_risk]\nCONDITIONS:\n- none\nDATA GAPS:\n- Thin owner fleet record: score leans on the industry baseline [score_risk]\n- Mock mode: memo is templated, not LLM-written",
+      "memo": "RECOMMENDATION: DECLINE [score_risk]\nRISK SCORE: 58.0/100 (vessel 29.7/50 + owner 28.3/50) [score_risk]\nPREMIUM: not quoted [score_risk]\nTOP RISK DRIVERS:\n- Class status is suspended (class suspended or withdrawn adds 6.0/6 points) [score_risk]\n- Vessel age is 26 years (year built 2000 adds 10.0/10 points) [score_risk]\n- Owner fleet record shows 4 detentions in 18 inspections (adds 20.3/35 points) [score_risk]\n\nOVERRIDES:\n- Class suspended or withdrawn: hull cover requires class, automatic DECLINE [score_risk]\n\nCONDITIONS: none [score_risk]\n\nDATA GAPS:\n- Thin owner fleet record: score leans on the industry baseline [score_risk]",
       "followups": [
         {
           "question": "What if it had one fewer detention?",
@@ -2732,30 +2936,30 @@
               "event": "tool_call",
               "tool": "score_risk",
               "input": {
-                "vessel_type": "Bulk Carrier",
+                "class_status": "suspended",
                 "year_built": 2000,
                 "flag_list": "grey",
-                "iacs_member": true,
-                "class_status": "suspended",
-                "psc_inspections": 8,
-                "psc_deficiencies": 30,
-                "psc_detentions": 0,
-                "owner_inspections": 18,
                 "owner_deficiencies": 71,
-                "owner_detentions": 4,
+                "owner_inspections": 18,
                 "sanctions_match": false,
-                "sanctions_possible": false
+                "vessel_type": "Bulk Carrier",
+                "psc_detentions": 1,
+                "iacs_member": true,
+                "owner_detentions": 3,
+                "psc_inspections": 8,
+                "sanctions_possible": false,
+                "psc_deficiencies": 30
               }
             },
             {
               "event": "tool_result",
               "tool": "score_risk",
               "output": {
-                "total": 54.8,
-                "vessel_score": 26.5,
+                "total": 58.0,
+                "vessel_score": 29.7,
                 "owner_score": 28.3,
                 "vessel": {
-                  "score": 26.5,
+                  "score": 29.7,
                   "max": 50,
                   "factors": {
                     "age": {
@@ -2766,9 +2970,9 @@
                     },
                     "psc": {
                       "label": "Vessel PSC record",
-                      "points": 3.5,
+                      "points": 6.7,
                       "max": 15,
-                      "detail": "8 inspections, 30 deficiencies, 0 detentions; credibility 0.62"
+                      "detail": "8 inspections, 30 deficiencies, 1 detentions; credibility 0.62"
                     },
                     "flag": {
                       "label": "Flag",
@@ -2807,7 +3011,7 @@
                       "label": "Owner fleet detentions",
                       "points": 20.3,
                       "max": 35,
-                      "detail": "4 detentions in 18 fleet inspections"
+                      "detail": "3 detentions in 18 fleet inspections"
                     },
                     "fleet_deficiencies": {
                       "label": "Owner fleet deficiencies",
@@ -2831,12 +3035,12 @@
               }
             }
           ],
-          "memo": "WHAT-IF:\n- detentions: 1 [get_psc_history] -> 0 [score_risk input]\nVESSEL SCORE: 29.7 -> 26.5/50 [score_risk]\nRISK SCORE: 58.0 -> 54.8/100 [score_risk]\nRECOMMENDATION: DECLINE -> DECLINE [score_risk]\nNote: hypothetical only; the vessel's actual record is unchanged."
+          "memo": "RECOMMENDATION: DECLINE [score_risk]\nRISK SCORE: 58.0 -> 58.0/100 (vessel 29.7 -> 29.7/50 + owner 28.3 -> 28.3/50) [score_risk]\nPREMIUM: not quoted [score_risk]\nTOP RISK DRIVERS:\n- Owner detentions: 4 -> 3 [get_owner_record, score_risk]\n- Class status is suspended (class suspended or withdrawn adds 6.0/6 points) [score_risk]\n- Vessel age is 26 years (year built 2000 adds 10.0/10 points) [score_risk]\n\nOVERRIDES:\n- Class suspended or withdrawn: hull cover requires class, automatic DECLINE [score_risk]\n\nCONDITIONS: none [score_risk]\n\nDATA GAPS:\n- Thin owner fleet record: score leans on the industry baseline [score_risk]"
         }
       ],
-      "mode": "mock",
-      "provider": "mock",
-      "model": null
+      "mode": "live",
+      "provider": "gemini",
+      "model": "gemini-3.5-flash-lite"
     },
     {
       "imo": "9900009",
@@ -2894,8 +3098,8 @@
           "event": "tool_call",
           "tool": "check_sanctions",
           "input": {
-            "imo": "9900009",
-            "owner_name": "Demo Sanctioned Trading Company Ltd."
+            "owner_name": "Demo Sanctioned Trading Company Ltd.",
+            "imo": "9900009"
           }
         },
         {
@@ -2941,18 +3145,18 @@
           "event": "tool_call",
           "tool": "score_risk",
           "input": {
-            "vessel_type": "Tanker",
-            "year_built": 2014,
-            "flag_list": "white",
             "iacs_member": true,
-            "class_status": "in_class",
-            "psc_inspections": 7,
-            "psc_deficiencies": 6,
-            "psc_detentions": 0,
-            "owner_inspections": 0,
             "owner_deficiencies": 0,
+            "flag_list": "white",
+            "psc_detentions": 0,
             "owner_detentions": 0,
             "sanctions_match": false,
+            "vessel_type": "Tanker",
+            "owner_inspections": 0,
+            "year_built": 2014,
+            "psc_inspections": 7,
+            "class_status": "in_class",
+            "psc_deficiencies": 6,
             "sanctions_possible": true
           }
         },
@@ -3047,19 +3251,19 @@
           "event": "tool_call",
           "tool": "find_risk_levers",
           "input": {
-            "vessel_type": "Tanker",
-            "year_built": 2014,
-            "flag_list": "white",
-            "iacs_member": true,
-            "class_status": "in_class",
-            "psc_inspections": 7,
-            "psc_deficiencies": 6,
-            "psc_detentions": 0,
             "owner_inspections": 0,
+            "flag_list": "white",
+            "class_status": "in_class",
+            "sanctions_possible": true,
+            "iacs_member": true,
+            "vessel_type": "Tanker",
             "owner_deficiencies": 0,
+            "psc_deficiencies": 6,
+            "psc_inspections": 7,
+            "year_built": 2014,
+            "psc_detentions": 0,
             "owner_detentions": 0,
-            "sanctions_match": false,
-            "sanctions_possible": true
+            "sanctions_match": false
           }
         },
         {
@@ -3071,28 +3275,9 @@
             "levers": [],
             "model_version": "prototype-0.3"
           }
-        },
-        {
-          "event": "tool_call",
-          "tool": "price_premium",
-          "input": {
-            "score": 21.1,
-            "insured_value_usd": 22000000
-          }
-        },
-        {
-          "event": "tool_result",
-          "tool": "price_premium",
-          "output": {
-            "relativity": 0.65,
-            "expected_loss_usd": 172445,
-            "premium_usd": 224178,
-            "rate_on_value_pct": 1.019,
-            "model_version": "prototype-0.3"
-          }
         }
       ],
-      "memo": "VESSEL: DEMO NAME GAME (IMO 9900009), Tanker, built 2014 [get_vessel_profile]\nOWNER: Demo Sanctioned Trading Company Ltd. [get_vessel_profile]\nRECOMMENDATION: REFER [score_risk]\nRISK SCORE: 21.1/100 (vessel 7.8/50 + owner 13.3/50) [score_risk]\nPREMIUM: $224,178 (1.019% of value) [price_premium]\nTOP RISK DRIVERS:\n- Owner fleet detentions: 7.0 of 35 pts, no fleet record, industry baseline [score_risk]\n- Owner fleet deficiencies: 6.3 of 15 pts, no fleet record, industry baseline [score_risk]\n- Vessel age: 3.5 of 10 pts, 12 years old [score_risk]\nOVERRIDES:\n- Possible sanctions match on owner name: a person must confirm, raised to REFER [score_risk]\n- Possible sanctions hit: Demo Sanctioned Trading Co on DEMO-SDN, needs a person to confirm [check_sanctions]\nCONDITIONS:\n- none\nDATA GAPS:\n- Missing owner_fleet_record [score_risk]\n- Thin owner fleet record: score leans on the industry baseline [score_risk]\n- No fleet record for owner Demo Sanctioned Trading Company Ltd. [get_owner_record]\n- Mock mode: memo is templated, not LLM-written",
+      "memo": "RECOMMENDATION: REFER [score_risk]\nRISK SCORE: 21.1/100 (vessel 7.8/50 + owner 13.3/50) [score_risk]\nPREMIUM: not quoted [price_premium]\nTOP RISK DRIVERS:\n- Vessel age: built in 2014 (12 years old) contributing 3.5 points [score_risk]\n- Vessel type: Tanker contributing 2.0 points [score_risk]\n- Owner fleet record: no fleet record found, using the industry baseline contributing 13.3 points [get_owner_record, score_risk]\n\nOVERRIDES:\n- Possible sanctions match on owner name: a person must confirm, raised to REFER [check_sanctions, score_risk]\n\nCONDITIONS:\n- none [find_risk_levers]\n\nDATA GAPS:\n- owner_fleet_record [score_risk]\n- Thin owner fleet record: score leans on the industry baseline [score_risk]",
       "followups": [
         {
           "question": "What if it had one more detention?",
@@ -3101,28 +3286,28 @@
               "event": "tool_call",
               "tool": "score_risk",
               "input": {
-                "vessel_type": "Tanker",
-                "year_built": 2014,
-                "flag_list": "white",
-                "iacs_member": true,
-                "class_status": "in_class",
                 "psc_inspections": 7,
+                "owner_detentions": 1,
+                "iacs_member": true,
+                "flag_list": "white",
                 "psc_deficiencies": 6,
+                "year_built": 2014,
+                "vessel_type": "Tanker",
                 "psc_detentions": 1,
-                "owner_inspections": 0,
-                "owner_deficiencies": 0,
-                "owner_detentions": 0,
+                "owner_inspections": 1,
                 "sanctions_match": false,
-                "sanctions_possible": true
+                "sanctions_possible": true,
+                "class_status": "in_class",
+                "owner_deficiencies": 0
               }
             },
             {
               "event": "tool_result",
               "tool": "score_risk",
               "output": {
-                "total": 24.6,
+                "total": 25.6,
                 "vessel_score": 11.3,
-                "owner_score": 13.3,
+                "owner_score": 14.3,
                 "vessel": {
                   "score": 11.3,
                   "max": 50,
@@ -3169,26 +3354,24 @@
                   "notes": []
                 },
                 "owner": {
-                  "score": 13.3,
+                  "score": 14.3,
                   "max": 50,
                   "factors": {
                     "fleet_detentions": {
                       "label": "Owner fleet detentions",
-                      "points": 7.0,
+                      "points": 8.3,
                       "max": 35,
-                      "detail": "no fleet record, industry baseline"
+                      "detail": "1 detentions in 1 fleet inspections"
                     },
                     "fleet_deficiencies": {
                       "label": "Owner fleet deficiencies",
-                      "points": 6.3,
+                      "points": 6.0,
                       "max": 15,
-                      "detail": "no fleet record, industry baseline"
+                      "detail": "0 deficiencies in 1 fleet inspections"
                     }
                   },
-                  "credibility_z": 0.0,
-                  "missing": [
-                    "owner_fleet_record"
-                  ]
+                  "credibility_z": 0.05,
+                  "missing": []
                 },
                 "recommendation": "REFER",
                 "overrides": [
@@ -3197,38 +3380,17 @@
                 "notes": [
                   "Thin owner fleet record: score leans on the industry baseline"
                 ],
-                "missing": [
-                  "owner_fleet_record"
-                ],
-                "model_version": "prototype-0.3"
-              }
-            },
-            {
-              "event": "tool_call",
-              "tool": "price_premium",
-              "input": {
-                "score": 24.6,
-                "insured_value_usd": 22000000
-              }
-            },
-            {
-              "event": "tool_result",
-              "tool": "price_premium",
-              "output": {
-                "relativity": 0.7,
-                "expected_loss_usd": 183533,
-                "premium_usd": 238593,
-                "rate_on_value_pct": 1.085,
+                "missing": [],
                 "model_version": "prototype-0.3"
               }
             }
           ],
-          "memo": "WHAT-IF:\n- detentions: 0 [get_psc_history] -> 1 [score_risk input]\nVESSEL SCORE: 7.8 -> 11.3/50 [score_risk]\nRISK SCORE: 21.1 -> 24.6/100 [score_risk]\nRECOMMENDATION: REFER -> REFER [score_risk]\nPREMIUM: $224,178 -> $238,593 [price_premium]\nNote: hypothetical only; the vessel's actual record is unchanged."
+          "memo": "RECOMMENDATION: REFER [score_risk]\nRISK SCORE: 21.1 -> 25.6/100 (vessel 7.8 -> 11.3/50 + owner 13.3 -> 14.3/50) [score_risk]\nPREMIUM: not quoted [price_premium]\nTOP RISK DRIVERS:\n- Vessel PSC record: 7 inspections, 6 deficiencies, 1 detentions contributing 5.8 points [score_risk]\n- Owner fleet detentions: 1 detentions in 1 fleet inspections contributing 8.3 points [score_risk]\n- Vessel age: built in 2014 (12 years old) contributing 3.5 points [score_risk]\n\nOVERRIDES:\n- Possible sanctions match on owner name: a person must confirm, raised to REFER [check_sanctions, score_risk]\n\nCONDITIONS:\n- none [find_risk_levers]\n\nDATA GAPS:\n- Thin owner fleet record: score leans on the industry baseline [score_risk]"
         }
       ],
-      "mode": "mock",
-      "provider": "mock",
-      "model": null
+      "mode": "live",
+      "provider": "gemini",
+      "model": "gemini-3.5-flash-lite"
     }
   ]
 }
