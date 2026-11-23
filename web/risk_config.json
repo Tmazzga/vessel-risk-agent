@@ -1,0 +1,94 @@
+{
+  "_about": "Single source of truth for the risk score. Read by agent/tools/scoring.py (agent) and web/scoring.js (web form). Change numbers here, never in code. All values are PROTOTYPE ASSUMPTIONS until calibrated on real data (Yuvraj).",
+  "model_version": "prototype-0.2",
+
+  "vessel": {
+    "max": 50,
+    "age": {
+      "max": 10,
+      "_rule": "0 points at or below min_years, scales linearly to max at full_years. Unknown year built = max points.",
+      "min_years": 5,
+      "full_years": 25
+    },
+    "psc": {
+      "max": 15,
+      "_rule": "Ship PSC index blended with a peer baseline by credibility Z = n / (n + k), n = inspections in the last 36 months.",
+      "k": 5,
+      "detention_weight": 0.7,
+      "detention_rate_full": 0.25,
+      "deficiency_weight": 0.3,
+      "deficiencies_per_inspection_full": 6,
+      "peer_index": 0.3
+    },
+    "flag": {
+      "max": 7,
+      "_rule": "Paris MOU white/grey/black list. Unknown scored like grey.",
+      "points": {"white": 0, "grey": 4, "black": 7, "unknown": 4}
+    },
+    "class_society": {
+      "max": 7,
+      "_rule": "IACS member society = 0. Non-IACS or unknown = max.",
+      "points": {"iacs": 0, "non_iacs": 7, "unknown": 7}
+    },
+    "class_status": {
+      "max": 6,
+      "_rule": "Suspended or withdrawn class forces DECLINE: hull cover requires class to be maintained.",
+      "points": {"in_class": 0, "conditions": 3, "overdue_survey": 5, "suspended": 6, "unknown": 3},
+      "labels": {
+        "in_class": "In class, no open items",
+        "conditions": "Open conditions of class",
+        "overdue_survey": "Overdue survey",
+        "suspended": "Class suspended or withdrawn",
+        "unknown": "Unknown"
+      }
+    },
+    "vessel_type": {
+      "max": 5,
+      "_rule": "Relative base risk by ship type. Prototype judgment, to be replaced by casualty-rate data.",
+      "points": {
+        "Container Ship": 2,
+        "Tanker": 2,
+        "Bulk Carrier": 3,
+        "General Cargo": 4,
+        "Ro-Ro": 5,
+        "Other": 3
+      }
+    }
+  },
+
+  "owner": {
+    "max": 50,
+    "_rule": "Fleet-wide PSC record of the registered owner (last 36 months), blended with an industry baseline by Z = n / (n + k), n = fleet inspections.",
+    "k": 20,
+    "detention": {
+      "max": 35,
+      "rate_full": 0.15,
+      "baseline_rate": 0.03
+    },
+    "deficiency": {
+      "max": 15,
+      "per_inspection_full": 6,
+      "baseline_per_inspection": 2.5
+    }
+  },
+
+  "thin_data_z": 0.5,
+
+  "recommendation": {
+    "_rule": "Bands on the total score (0-100). Overrides always win.",
+    "bands": [
+      {"below": 30, "label": "ACCEPT"},
+      {"below": 50, "label": "ACCEPT WITH CONDITIONS"},
+      {"below": 70, "label": "REFER"},
+      {"below": 1000, "label": "DECLINE"}
+    ]
+  },
+
+  "pricing": {
+    "_rule": "premium = base_rate x insured value x relativity x (1 + loading); relativity = intercept + slope x total score, so score 50 = 1.0x.",
+    "base_rate": 0.012,
+    "loading": 0.30,
+    "relativity_intercept": 0.4,
+    "relativity_slope": 0.012
+  }
+}

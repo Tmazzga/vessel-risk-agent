@@ -4,7 +4,7 @@ from pathlib import Path
 
 from agent.tools import data_tools
 from pipeline.fetch_ofac import parse_sdn
-from pipeline.validate_vessels import imo_valid, validate
+from pipeline.validate_vessels import imo_valid, validate, validate_owners
 
 FIX = Path(__file__).parent / "fixtures"
 
@@ -79,3 +79,12 @@ def test_falls_back_to_sample_data(monkeypatch, tmp_path):
     finally:
         data_tools._vessels.cache_clear()
         data_tools._sanctions.cache_clear()
+
+
+def test_owner_validator(tmp_path):
+    f = tmp_path / "owners.csv"
+    f.write_text("owner,fleet_size,inspections,deficiencies,detentions,period,source,date_pulled\n"
+                 "Demo Co,4,10,12,1,last 36 months,test,2026-11-20\n"
+                 "demo co,4,10,12,11,last 36 months,test,2026-11-20\n")
+    problems = " ".join(validate_owners(f))
+    assert "duplicate owner" in problems and "more detentions" in problems

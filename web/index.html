@@ -37,14 +37,136 @@
   .q:first-child { margin-top: 0; }
   pre.memo { margin: 0 0 8px; white-space: pre-wrap; font: 13px/1.6 ui-monospace, Menlo, monospace; }
   .note { color: var(--muted); font-size: 13px; margin-top: 12px; }
+  .lede { color: var(--muted); margin: 0 0 14px; font-size: 14px; }
+  .scorer { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 16px; margin-bottom: 28px; }
+  @media (max-width: 860px) { .scorer { grid-template-columns: 1fr; } }
+  .presets { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .presets button { border: 1px solid var(--line); background: var(--bg); color: var(--ink); padding: 5px 9px;
+                    border-radius: 6px; cursor: pointer; font: 13px system-ui, sans-serif; }
+  .presets button:hover { border-color: var(--accent); }
+  fieldset { border: 0; padding: 0; margin: 0 0 14px; min-width: 0; }
+  legend { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
+           padding: 0; margin-bottom: 6px; }
+  .fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px 10px; }
+  label { display: flex; flex-direction: column; gap: 3px; font-size: 13px; color: var(--muted); }
+  label.check { flex-direction: row; align-items: center; gap: 8px; color: var(--ink); }
+  input, select { font: 14px system-ui, sans-serif; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px;
+                  background: var(--bg); color: var(--ink); min-width: 0; width: 100%; }
+  input[type=checkbox] { width: auto; }
+  input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 0; }
+  .hint { font-size: 12px; color: var(--muted); margin: 6px 0 0; }
+  .warn { color: #b3261e; font-size: 13px; margin: 6px 0 0; }
+  @media (prefers-color-scheme: dark) { .warn { color: #f2b8b5; } }
+  .total { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .total .num { font-size: 44px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+  .total .of { color: var(--muted); font-size: 18px; }
+  .badge { margin-left: auto; padding: 4px 10px; border-radius: 999px; font-weight: 600; font-size: 13px;
+           border: 1px solid currentColor; }
+  .badge.ACCEPT { color: #1e7d32; } .badge.REFER { color: #a15c00; } .badge.DECLINE { color: #b3261e; }
+  .badge.CONDITIONS { color: #6d5d00; }
+  @media (prefers-color-scheme: dark) {
+    .badge.ACCEPT { color: #8fd694; } .badge.REFER { color: #f5b860; } .badge.DECLINE { color: #f2b8b5; }
+    .badge.CONDITIONS { color: #e3d36b; }
+  }
+  .halves { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  .half .row { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); }
+  .half .row b { color: var(--ink); font-variant-numeric: tabular-nums; }
+  .bar { height: 8px; border-radius: 4px; background: var(--line); margin-top: 6px; overflow: hidden; }
+  .bar span { display: block; height: 100%; background: var(--accent); width: 0; transition: width .25s; }
+  .flags { margin: 0 0 12px; padding-left: 18px; font-size: 13px; }
+  .flags li { margin-bottom: 2px; }
+  .flags.over li { color: #b3261e; font-weight: 600; }
+  @media (prefers-color-scheme: dark) { .flags.over li { color: #f2b8b5; } }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 6px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 12px; }
+  td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tr.group td { font-weight: 600; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .05em;
+                padding-top: 12px; }
+  .premium { margin-top: 14px; font-size: 14px; }
+  .premium b { font-size: 18px; font-variant-numeric: tabular-nums; }
+  h2.big { font-size: 15px; text-transform: none; letter-spacing: 0; color: var(--ink); margin: 0 0 4px; }
 </style>
 </head>
 <body>
 <header>
   <h1>Vessel Risk Agent</h1>
-  <p>LLM underwriting agent: tool calls on the left, memo on the right. Every figure comes from a tool.</p>
+  <p>Hull &amp; machinery risk: vessel score (0&ndash;50) + owner score (0&ndash;50) = total out of 100. Higher is riskier.</p>
 </header>
 <main>
+  <h2 class="big">Score a vessel</h2>
+  <p class="lede">Enter the vessel and owner details, or load a demo ship. The score updates as you type and uses the same model as the agent.</p>
+  <div class="scorer">
+    <section>
+      <div class="presets" id="presets" aria-label="Load a demo ship"></div>
+      <form id="form" autocomplete="off">
+        <fieldset>
+          <legend>Vessel</legend>
+          <div class="fields">
+            <label>Vessel type <select name="vessel_type" id="f-type"></select></label>
+            <label>Year built <input name="year_built" type="number" min="1950" max="2100" placeholder="e.g. 2012"></label>
+            <label>Flag (Paris MOU list)
+              <select name="flag_list">
+                <option value="white">White</option><option value="grey">Grey</option>
+                <option value="black">Black</option><option value="">Unknown</option>
+              </select></label>
+            <label>Class society
+              <select name="iacs_member">
+                <option value="true">IACS member</option><option value="false">Not IACS</option><option value="">Unknown</option>
+              </select></label>
+            <label>Class status <select name="class_status" id="f-class-status"></select></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Vessel PSC record, last 36 months</legend>
+          <div class="fields">
+            <label>Inspections <input name="psc_inspections" type="number" min="0" value="0"></label>
+            <label>Deficiencies <input name="psc_deficiencies" type="number" min="0" value="0"></label>
+            <label>Detentions <input name="psc_detentions" type="number" min="0" value="0"></label>
+          </div>
+          <p class="warn" id="warn-vessel" hidden>Detentions can't exceed inspections.</p>
+        </fieldset>
+        <fieldset>
+          <legend>Owner fleet PSC record, last 36 months</legend>
+          <div class="fields">
+            <label>Fleet inspections <input name="owner_inspections" type="number" min="0" value="0"></label>
+            <label>Fleet deficiencies <input name="owner_deficiencies" type="number" min="0" value="0"></label>
+            <label>Fleet detentions <input name="owner_detentions" type="number" min="0" value="0"></label>
+          </div>
+          <p class="warn" id="warn-owner" hidden>Detentions can't exceed inspections.</p>
+          <p class="hint">All ships under the registered owner, from the Equasis company record. Leave at 0 if unknown.</p>
+        </fieldset>
+        <fieldset>
+          <legend>Screening and value</legend>
+          <div class="fields">
+            <label class="check"><input name="sanctions_match" type="checkbox"> Vessel or owner on a sanctions list</label>
+            <label>Insured value (USD) <input name="insured_value_usd" type="number" min="0" step="100000" placeholder="e.g. 18000000"></label>
+          </div>
+        </fieldset>
+      </form>
+    </section>
+    <section aria-live="polite">
+      <div class="total">
+        <span class="num" id="r-total">0</span><span class="of">/ 100</span>
+        <span class="badge" id="r-rec"></span>
+      </div>
+      <div class="halves">
+        <div class="half"><div class="row"><span>Vessel</span><b id="r-vessel">0 / 50</b></div><div class="bar"><span id="b-vessel"></span></div></div>
+        <div class="half"><div class="row"><span>Owner</span><b id="r-owner">0 / 50</b></div><div class="bar"><span id="b-owner"></span></div></div>
+      </div>
+      <ul class="flags over" id="r-overrides"></ul>
+      <ul class="flags" id="r-notes"></ul>
+      <table>
+        <thead><tr><th>Factor</th><th>Detail</th><th class="n">Points</th></tr></thead>
+        <tbody id="r-factors"></tbody>
+      </table>
+      <p class="premium" id="r-premium"></p>
+      <p class="note" id="r-version"></p>
+    </section>
+  </div>
+
+  <h2 class="big">Agent replay</h2>
+  <p class="lede">The AI agent gathering the same inputs with tools, then writing a memo. Every figure comes from a tool.</p>
   <div class="tabs" id="tabs"></div>
   <div class="grid">
     <section><h2>Agent trace</h2><div id="trace"></div></section>
@@ -116,6 +238,111 @@ fetch('demo.json').then(r => r.json()).then(d => {
 }).catch(() => {
   document.getElementById('memo').textContent = 'No demo.json found. Run: python -m agent.export_demo';
 });
+</script>
+<script type="module">
+import { scoreRisk, pricePremium } from './scoring.js';
+
+const form = document.getElementById('form');
+const $ = id => document.getElementById(id);
+const money = n => '$' + Math.round(n).toLocaleString('en-US');
+let cfg;
+
+function readInputs() {
+  const f = new FormData(form), v = k => f.get(k);
+  const nullable = k => (v(k) === '' || v(k) === null ? null : v(k));
+  return {
+    vessel_type: nullable('vessel_type'), year_built: nullable('year_built'),
+    flag_list: nullable('flag_list'),
+    iacs_member: v('iacs_member') === '' ? null : v('iacs_member') === 'true',
+    class_status: nullable('class_status'),
+    psc_inspections: v('psc_inspections'), psc_deficiencies: v('psc_deficiencies'), psc_detentions: v('psc_detentions'),
+    owner_inspections: v('owner_inspections'), owner_deficiencies: v('owner_deficiencies'), owner_detentions: v('owner_detentions'),
+    sanctions_match: form.sanctions_match.checked,
+    insured_value_usd: v('insured_value_usd'),
+  };
+}
+
+function li(text) { const e = document.createElement('li'); e.textContent = text; return e; }
+
+function row(cells, cls) {
+  const tr = document.createElement('tr'); if (cls) tr.className = cls;
+  cells.forEach(([t, c, span]) => { const td = document.createElement('td'); td.textContent = t;
+    if (c) td.className = c; if (span) td.colSpan = span; tr.appendChild(td); });
+  return tr;
+}
+
+function render() {
+  const inp = readInputs(), r = scoreRisk(cfg, inp);
+  $('warn-vessel').hidden = +inp.psc_detentions <= +inp.psc_inspections;
+  $('warn-owner').hidden = +inp.owner_detentions <= +inp.owner_inspections;
+
+  $('r-total').textContent = r.total;
+  const rec = $('r-rec'); rec.textContent = r.recommendation;
+  rec.className = 'badge ' + (r.recommendation.includes('CONDITIONS') ? 'CONDITIONS' : r.recommendation);
+  $('r-vessel').textContent = `${r.vessel_score} / 50`;
+  $('r-owner').textContent = `${r.owner_score} / 50`;
+  $('b-vessel').style.width = (r.vessel_score / 50 * 100) + '%';
+  $('b-owner').style.width = (r.owner_score / 50 * 100) + '%';
+
+  $('r-overrides').replaceChildren(...r.overrides.map(li));
+  const notes = [...r.notes, ...r.missing.map(m => `Missing: ${m.replace(/_/g, ' ')}`)];
+  $('r-notes').replaceChildren(...notes.map(li));
+
+  const body = $('r-factors'); body.replaceChildren();
+  [['Vessel', r.vessel], ['Owner', r.owner]].forEach(([name, part]) => {
+    body.appendChild(row([[`${name} \u00b7 ${part.score} of ${part.max}`, '', 3]], 'group'));
+    Object.values(part.factors).forEach(f =>
+      body.appendChild(row([[f.label], [f.detail], [`${f.points} / ${f.max}`, 'n']])));
+  });
+
+  const pv = $('r-premium'), value = +inp.insured_value_usd;
+  if (r.recommendation === 'DECLINE') pv.textContent = 'Premium: not quoted (DECLINE).';
+  else if (value > 0) {
+    const p = pricePremium(cfg, r.total, value);
+    pv.replaceChildren('Indicative annual premium: ', Object.assign(document.createElement('b'), { textContent: money(p.premium_usd) }),
+      ` (${p.rate_on_value_pct}% of insured value, ${p.relativity}x the average-risk rate)`);
+  } else pv.textContent = 'Enter an insured value to see a premium.';
+  $('r-version').textContent = `Model ${r.model_version}. Weights are prototype assumptions, pending calibration on real data.`;
+}
+
+function setForm(vals) {
+  for (const [k, v] of Object.entries(vals)) {
+    const el = form.elements[k]; if (!el) continue;
+    if (el.type === 'checkbox') el.checked = !!v;
+    else el.value = v === null || v === undefined ? '' : String(v);
+  }
+  render();
+}
+
+function presetFrom(run) {
+  const call = run.events.find(e => e.event === 'tool_call' && e.tool === 'score_risk');
+  const prof = run.events.find(e => e.event === 'tool_result' && e.tool === 'get_vessel_profile');
+  return call && { ...call.input, insured_value_usd: prof?.output?.insured_value_usd ?? '' };
+}
+
+const [config, demo] = await Promise.all([
+  fetch('risk_config.json').then(r => r.json()),
+  fetch('demo.json').then(r => r.json()).catch(() => ({ runs: [] })),
+]);
+cfg = config;
+$('f-type').replaceChildren(...Object.keys(cfg.vessel.vessel_type.points).map(t => new Option(t, t)),
+                            new Option('Unknown', ''));
+$('f-class-status').replaceChildren(...Object.entries(cfg.vessel.class_status.labels)
+  .filter(([k]) => k !== 'unknown').map(([k, l]) => new Option(l, k)), new Option('Unknown', ''));
+
+const presets = $('presets');
+demo.runs.forEach(run => {
+  const vals = presetFrom(run); if (!vals) return;
+  const b = document.createElement('button'); b.type = 'button'; b.textContent = run.name;
+  b.onclick = () => setForm(vals); presets.appendChild(b);
+});
+const clear = document.createElement('button'); clear.type = 'button'; clear.textContent = 'Clear';
+clear.onclick = () => { form.reset(); render(); }; presets.appendChild(clear);
+
+form.addEventListener('input', render);
+form.addEventListener('change', render);
+const first = demo.runs.map(presetFrom).find(Boolean);
+first ? setForm(first) : render();
 </script>
 </body>
 </html>

@@ -9,6 +9,7 @@
       "flag_list": "white",
       "class_society": "DNV",
       "iacs_member": true,
+      "class_status": "in_class",
       "gross_tonnage": 43000,
       "owner": "Demo Clean Shipping Ltd",
       "insured_value_usd": 32000000,
@@ -27,6 +28,7 @@
       "flag_list": "grey",
       "class_society": "Demo Non-IACS Register",
       "iacs_member": false,
+      "class_status": "conditions",
       "gross_tonnage": 38000,
       "owner": "Demo Opaque Holdings SA",
       "insured_value_usd": 9000000,
@@ -45,6 +47,7 @@
       "flag_list": "white",
       "class_society": "ABS",
       "iacs_member": true,
+      "class_status": "in_class",
       "gross_tonnage": 40000,
       "owner": "Demo Sanctioned Trading Co",
       "insured_value_usd": 18000000,
@@ -56,7 +59,27 @@
       }
     }
   },
+  "owners": {
+    "Demo Clean Shipping Ltd": {
+      "fleet_size": 14,
+      "inspections": 62,
+      "deficiencies": 98,
+      "detentions": 1,
+      "period": "last 36 months"
+    },
+    "Demo Opaque Holdings SA": {
+      "fleet_size": 3,
+      "inspections": 18,
+      "deficiencies": 71,
+      "detentions": 4,
+      "period": "last 36 months"
+    }
+  },
   "sanctions_list": [
-    {"name": "Demo Sanctioned Trading Co", "list": "DEMO-SDN", "imo": null}
+    {
+      "name": "Demo Sanctioned Trading Co",
+      "list": "DEMO-SDN",
+      "imo": null
+    }
   ]
 }

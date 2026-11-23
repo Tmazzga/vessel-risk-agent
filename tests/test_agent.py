@@ -22,29 +22,32 @@ def test_mock_follow_up_reruns_tools_and_lowers_score():
     s.ask("Assess IMO 9900002", lambda e: None)
     memo = s.ask("What if it had one fewer detention?", events.append)
     called = [e["tool"] for e in events if e["event"] == "tool_call"]
-    assert called == ["score_vessel", "price_premium"]
-    new_score = next(e for e in events if e["event"] == "tool_result")["output"]["score"]
-    assert new_score < 75.1 and "WHAT-IF" in memo
+    assert called == ["score_risk", "price_premium"]
+    before = s.state["score"]["total"]
+    after = next(e for e in events if e["event"] == "tool_result")["output"]
+    assert after["vessel_score"] < s.state["score"]["vessel_score"]
+    assert after["owner_score"] == s.state["score"]["owner_score"]  # owner record unchanged
+    assert after["total"] < before and "WHAT-IF" in memo
 
 
 def test_checker_passes_traced_memo():
-    events = [{"event": "tool_result", "tool": "score_vessel", "output": {"score": 75.1}},
+    events = [{"event": "tool_result", "tool": "score_risk", "output": {"score": 75.1}},
               {"event": "tool_result", "tool": "price_premium", "output": {"premium_usd": 182688}}]
-    memo = "RISK SCORE: 75.1/100 [score_vessel]\nPREMIUM: $182,688 [price_premium]"
+    memo = "RISK SCORE: 75.1/100 [score_risk]\nPREMIUM: $182,688 [price_premium]"
     assert check(memo, events)["pass"]
 
 
 def test_checker_catches_made_up_number_and_missing_citation():
-    events = [{"event": "tool_result", "tool": "score_vessel", "output": {"score": 75.1}}]
-    r = check("RISK SCORE: 78.4/100 [score_vessel]\nThe premium is $250,000.", events)
+    events = [{"event": "tool_result", "tool": "score_risk", "output": {"score": 75.1}}]
+    r = check("RISK SCORE: 78.4/100 [score_risk]\nThe premium is $250,000.", events)
     assert not r["pass"]
     assert {u["number"] for u in r["untraced"]} == {"78.4", "$250,000"}
     assert r["uncited_lines"] == ["The premium is $250,000."]
 
 
 def test_checker_allows_rounding_to_shown_decimals():
-    events = [{"event": "tool_result", "tool": "score_vessel", "output": {"credibility_z": 0.1667}}]
-    assert check("Credibility weight 0.17 [score_vessel]", events)["pass"]
+    events = [{"event": "tool_result", "tool": "score_risk", "output": {"credibility_z": 0.1667}}]
+    assert check("Credibility weight 0.17 [score_risk]", events)["pass"]
 
 
 class FakeClient:

@@ -13,27 +13,33 @@ def test_sanctions_owner_match():
     assert r["match"] is True
 
 
+def test_owner_record_found_and_missing():
+    assert run_tool("get_owner_record", {"owner_name": "Demo Opaque Holdings SA"})["detentions"] == 4
+    missing = run_tool("get_owner_record", {"owner_name": "Nobody Ltd"})
+    assert missing["found"] is False and missing["inspections"] == 0
+
+
+RUSTY = {"vessel_type": "Bulk Carrier", "year_built": 2003, "flag_list": "grey", "iacs_member": False,
+         "class_status": "conditions", "psc_inspections": 11, "psc_deficiencies": 47, "psc_detentions": 3,
+         "owner_inspections": 18, "owner_deficiencies": 71, "owner_detentions": 4, "sanctions_match": False}
+
+
 def test_score_shape_and_range():
-    r = run_tool("score_vessel", {"vessel_type": "Bulk Carrier", "year_built": 2003,
-                                  "flag_list": "grey", "iacs_member": False,
-                                  "inspections": 11, "deficiencies": 47, "detentions": 3})
-    assert 0 <= r["score"] <= 100
-    assert set(r["contributions"]) == {"age", "psc", "flag", "class"}
-    assert 0 <= r["credibility_z"] <= 1
+    r = run_tool("score_risk", RUSTY)
+    assert 0 <= r["total"] <= 100
+    assert set(r["vessel"]["factors"]) == {"age", "psc", "flag", "class_society", "class_status", "vessel_type"}
+    assert set(r["owner"]["factors"]) == {"fleet_detentions", "fleet_deficiencies"}
 
 
 def test_riskier_ship_scores_higher():
-    clean = run_tool("score_vessel", {"vessel_type": "Bulk Carrier", "year_built": 2019,
-                                      "flag_list": "white", "iacs_member": True,
-                                      "inspections": 9, "deficiencies": 4, "detentions": 0})
-    rusty = run_tool("score_vessel", {"vessel_type": "Bulk Carrier", "year_built": 2003,
-                                      "flag_list": "grey", "iacs_member": False,
-                                      "inspections": 11, "deficiencies": 47, "detentions": 3})
-    assert rusty["score"] > clean["score"]
+    clean = dict(RUSTY, year_built=2019, flag_list="white", iacs_member=True, class_status="in_class",
+                 psc_inspections=9, psc_deficiencies=4, psc_detentions=0,
+                 owner_inspections=62, owner_deficiencies=98, owner_detentions=1)
+    assert run_tool("score_risk", RUSTY)["total"] > run_tool("score_risk", clean)["total"]
 
 
 def test_tool_errors_are_reported_not_raised():
-    assert "error" in run_tool("score_vessel", {"bad": 1})
+    assert "error" in run_tool("score_risk", {"bad": 1})
     assert "error" in run_tool("no_such_tool", {})
 
 

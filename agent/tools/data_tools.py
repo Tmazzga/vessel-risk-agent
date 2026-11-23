@@ -5,6 +5,7 @@ fictional demo set in data/sample/vessels.json:
 
     data/processed/vessels.csv    hand-built from Equasis + USCG PSIX / Paris MOU
                                   (check it with: python -m pipeline.validate_vessels)
+    data/processed/owners.csv     owner fleet PSC record, hand-built from Equasis
     data/processed/sanctions.csv  built by: python -m pipeline.fetch_ofac
 
 Return shapes are fixed by docs/tool-spec.md. Don't change them without
@@ -19,9 +20,10 @@ ROOT = Path(__file__).resolve().parents[2]
 SAMPLE_FILE = ROOT / "data" / "sample" / "vessels.json"
 VESSELS_CSV = ROOT / "data" / "processed" / "vessels.csv"
 SANCTIONS_CSV = ROOT / "data" / "processed" / "sanctions.csv"
+OWNERS_CSV = ROOT / "data" / "processed" / "owners.csv"
 
 PROFILE_KEYS = ["name", "type", "year_built", "flag", "flag_list", "class_society",
-                "iacs_member", "gross_tonnage", "owner", "insured_value_usd"]
+                "iacs_member", "class_status", "gross_tonnage", "owner", "insured_value_usd"]
 
 
 def _num(v, kind=int):
@@ -38,6 +40,7 @@ def _row_to_vessel(r: dict) -> dict:
         "flag_list": r["flag_list"].strip().lower(),
         "class_society": r["class_society"],
         "iacs_member": r["iacs_member"].strip().lower() in ("true", "yes", "1"),
+        "class_status": (r.get("class_status") or "").strip().lower() or None,
         "gross_tonnage": _num(r["gross_tonnage"]),
         "owner": r["owner"],
         "insured_value_usd": _num(r["insured_value_usd"], float),
@@ -68,6 +71,25 @@ def _sanctions() -> tuple[list, str]:
         with SANCTIONS_CSV.open(newline="") as f:
             return list(csv.DictReader(f)), "OFAC SDN list"
     return json.loads(SAMPLE_FILE.read_text())["sanctions_list"], "sample-data"
+
+
+@lru_cache(maxsize=1)
+def _owners() -> tuple[dict, str]:
+    if OWNERS_CSV.exists():
+        with OWNERS_CSV.open(newline="") as f:
+            rows = {_norm(r["owner"]): {
+                "owner": r["owner"],
+                "fleet_size": _num(r.get("fleet_size")),
+                "inspections": _num(r.get("inspections")) or 0,
+                "deficiencies": _num(r.get("deficiencies")) or 0,
+                "detentions": _num(r.get("detentions")) or 0,
+                "period": r.get("period") or "last 36 months",
+                "_source": r.get("source") or "processed data",
+                "_date_pulled": r.get("date_pulled") or None,
+            } for r in csv.DictReader(f) if r.get("owner")}
+        return rows, "processed"
+    raw = json.loads(SAMPLE_FILE.read_text()).get("owners", {})
+    return {_norm(k): {"owner": k, **v} for k, v in raw.items()}, "sample"
 
 
 def data_mode() -> str:
@@ -123,3 +145,19 @@ def check_sanctions(imo: str, owner_name: str = "") -> dict:
             hits.append({"name": e["name"], "list": e.get("list", "OFAC-SDN"),
                          "program": e.get("program", ""), "matched_on": "owner_name"})
     return {"imo": imo, "match": bool(hits), "hits": hits, "source": source}
+
+
+def get_owner_record(owner_name: str) -> dict:
+    """Fleet-wide PSC record for the registered owner (all ships, last 36 months)."""
+    rows, mode = _owners()
+    o = rows.get(_norm(owner_name or ""))
+    if o is None:
+        return {"found": False, "owner": owner_name, "inspections": 0, "deficiencies": 0,
+                "detentions": 0, "source": mode,
+                "note": "No fleet record found; owner score will use the industry baseline"}
+    src = "sample-data (stand-in for Equasis company PSC record)" if mode == "sample" else (
+        f"{o['_source']} (pulled {o['_date_pulled']})" if o.get("_date_pulled") else o["_source"])
+    return {"found": True, "owner": o["owner"], "fleet_size": o.get("fleet_size"),
+            "inspections": o["inspections"], "deficiencies": o["deficiencies"],
+            "detentions": o["detentions"], "period": o.get("period", "last 36 months"),
+            "source": src}
